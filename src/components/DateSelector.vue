@@ -19,7 +19,11 @@ const mode = ref(modes.value[0]);
 const weekdayFormatter = new Intl.DateTimeFormat("en-US", { weekday: "long" })
 const monthFormatter = new Intl.DateTimeFormat("en-US", { month: "long" })
 
-const selectedDates = ref([])
+const selectedDates = ref([]);
+
+defineExpose({
+    selectedDates
+})
 
 function updateModes() {
     //const weekday = baseDate.value.getDay(); // 0 (Sun) to 6 (Sat)

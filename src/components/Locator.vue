@@ -79,6 +79,10 @@ const setLocationToUserError = (message, code) => {
     setLocationToUserInProgress.value = false
 }
 
+defineExpose({
+    selectedLocation
+})
+
 </script>
 
 <template>
@@ -88,7 +92,7 @@ const setLocationToUserError = (message, code) => {
             v-model="selectedLocation" 
             :delay="1000" 
             :suggestions="selectedLocationSuggestions" 
-            :datakey="osm_id"
+            
             dropdown 
             fluid
             optionLabel="display_name" 
