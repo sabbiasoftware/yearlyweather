@@ -4,14 +4,21 @@ import leaflet from 'leaflet'
 import { onMounted } from 'vue';
 
 var map = null
+var marker = null
 
 const setLocation = (lon, lat) => {
-    map.panTo(new L.LatLng(lon, lat))
+    if (marker) {
+        marker.setLatLng([lon, lat])
+    }
+    else {
+        marker = L.marker([lon, lat]).addTo(map)
+    }
+    map.flyTo(new L.LatLng(lon, lat), 10)
 }
 
 const setLocationToUser = () => {
     console.log('Trying to locate user...')
-    map.locate({ setView: true, maxZoom: 8 })
+    map.locate({ setView: false, maxZoom: 10 })
 }
 
 defineExpose({ setLocation, setLocationToUser })

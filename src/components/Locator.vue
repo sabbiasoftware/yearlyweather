@@ -2,17 +2,22 @@
 
 import { ref } from 'vue'
 import AutoComplete from 'primevue/autocomplete';
-import InputText from 'primevue/inputtext';
-import InputNumber from 'primevue/inputnumber';
 import Button from 'primevue/button';
 import Map from './Map.vue'
 import axios from 'axios';
 
-const locationText = ref('')
-const selectedLocation = ref(null)
+const emptyLocation = {
+    osm_id: 0,
+    name: '?',
+    type: '?',
+    country: '?',
+    display_name: '',
+    lon: 0.0,
+    lat: 0.0,
+}
+
+const selectedLocation = ref(emptyLocation)
 const selectedLocationSuggestions = ref([])
-const lon = ref(0.0)
-const lat = ref(0.0)
 
 const searchLocationInProgress = ref(false)
 const setLocationToUserInProgress = ref(false)
@@ -27,14 +32,27 @@ const setLocation = (lon, lat) => {
 const searchLocation = () => {
     searchLocationInProgress.value = true
 
-    axios.get('https://nominatim.openstreetmap.org/search', {
+    const query = typeof(selectedLocation.value) === 'string' ? selectedLocation.value : selectedLocation.value.name
+
+    //console.log('Searching location: ' + typeof(selectedLocation.value))
+
+    axios.get('https://photon.komoot.io/api/', {
         params: {
-            q: selectedLocation.value,
-            format: 'json',
+            q: query,
+            //format: 'json',
             limit: 5
         }
     }).then(response => {
-        selectedLocationSuggestions.value = response.data
+        selectedLocationSuggestions.value = response.data.features.map(f => ({
+            osm_id: f.properties.osm_id,
+            name: f.properties.name,
+            type: f.properties.osm_value,
+            country: f.properties.country,
+            display_name: f.properties.name + ' (' + f.properties.type + ' in ' + f.properties.country + ')',
+            lon: f.geometry.coordinates[1],
+            lat: f.geometry.coordinates[0],
+        }))
+        //console.log(selectedLocationSuggestions.value)
     }).catch(error => {
         console.error('Error searching location:', error)
     }).finally(() => {
@@ -49,8 +67,12 @@ const setLocationToUser = () => {
 
 const setLocationToUserComplete = (newLon, newLat) => {
     setLocationToUserInProgress.value = false
-    lon.value = newLon
-    lat.value = newLat
+    
+    selectedLocation.value = emptyLocation;
+    selectedLocation.value.lon = newLon
+    selectedLocation.value.lat = newLat
+    selectedLocation.value.display_name = 'Current location'
+    setLocation(newLat, newLon)
 }
 
 const setLocationToUserError = (message, code) => {
@@ -61,10 +83,19 @@ const setLocationToUserError = (message, code) => {
 
 <template>
     <div id="locator">
-        <AutoComplete id="locationText" v-model="selectedLocation" :delay="1000" :suggestions="selectedLocationSuggestions" datakey="place_id" optionLabel="display_name" @change="searchLocation" @select="setLocation(selectedLocation.lon, selectedLocation.lat)" />
+        <AutoComplete
+            id="locationText" 
+            v-model="selectedLocation" 
+            :delay="1000" 
+            :suggestions="selectedLocationSuggestions" 
+            :datakey="osm_id"
+            dropdown 
+            fluid
+            optionLabel="display_name" 
+            @complete="searchLocation" 
+            @option-select="setLocation(selectedLocation.lon, selectedLocation.lat)" />
         <Button id="searchButton" @click=''>Search</Button>
-        <InputNumber id="lonText" :max-fraction-digits="15" :min="-180" :max="180" v-model="lon" @value-change="setLocation(lon, lat)" />
-        <InputNumber id="latText" :max-fraction-digits="15" :min="-90"  :max="90" v-model="lat" />
+        <span id="coordinates">Selected coordinates: {{ selectedLocation.lat }}, {{ selectedLocation.lon }}</span>
         <Button id="locateButton" @click='setLocationToUser'>
             <i v-if="setLocationToUserInProgress" class="pi pi-spin pi-spinner" style="font-size: 1rem"></i>
             Find me
@@ -76,33 +107,28 @@ const setLocationToUserError = (message, code) => {
 <style scoped>
     #locator {
         display: grid;
-        grid-template-columns: 1fr 1fr 120px;
+        grid-template-columns: 1fr 120px 120px;
         column-gap: 8px;
         row-gap: 8px;
     }
 
     #locationText {
         grid-row: 1;
-        grid-column: 1 / 3;
+        grid-column: 1 / 2;
     }
 
     #searchButton {
         grid-row: 1;
-        grid-column: 3;
-    }
-
-    #lonText {
-        grid-row: 2;
-        grid-column: 1;
-    }
-
-    #latText {
-        grid-row: 2;
         grid-column: 2;
     }
 
-    #locateButton {
+    #coordinates {
         grid-row: 2;
+        grid-column: 1 / 4;
+    }
+
+    #locateButton {
+        grid-row: 1;
         grid-column: 3;
     }
 
