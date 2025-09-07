@@ -1,29 +1,16 @@
 # yearlyweather
 
-This template should help get you started developing with Vue 3 in Vite.
+A simple web app to check weather history around a specific day of the year. You can check weather stats at your home town on your birthday for fun, or see if weather was gracous on first Saturdays of October on your running race of choice.
 
-## Recommended IDE Setup
+The app is NOT intended to be used as a weather forecast tool. It just presentes historical weather data.
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+# Frameworks / tools / libs used:
+- Vuejs
+- PrimeVue
+- Leaflet.js
+- Axios
+- Chart.js
 
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
-
-```sh
-npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
-npm run dev
-```
-
-### Compile and Minify for Production
-
-```sh
-npm run build
-```
+# Public APIs used:
+- Geocoding: photon.komoot.io/api
+- Weather: https://archive-api.open-meteo.com/v1/archive
