@@ -22,6 +22,8 @@ function generateStats() {
 
 <template>
     <div>
+        <br/>
+
         <Panel header="Step 1: select location">
             <Locator ref="locator"></Locator>
         </Panel>
@@ -38,5 +40,7 @@ function generateStats() {
             <Button label="Generate stats" @click="generateStats"></Button>
             <WeatherStatistics ref="weatherStatistics"></WeatherStatistics>
         </Panel>
-    </div>
+
+        <br/>
+</div>
 </template>
