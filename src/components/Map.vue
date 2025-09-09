@@ -8,12 +8,12 @@ var marker = null
 
 const setLocation = (lon, lat) => {
     if (marker) {
-        marker.setLatLng([lon, lat])
+        marker.setLatLng( { lat: lat, lng: lon } )
     }
     else {
-        marker = L.marker([lon, lat]).addTo(map)
+        marker = L.marker( { lat: lat, lng: lon } ).addTo(map)
     }
-    map.flyTo(new L.LatLng(lon, lat), 10)
+    map.flyTo(new L.LatLng(lat, lon), 10)
 }
 
 const setLocationToUser = () => {

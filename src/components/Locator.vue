@@ -49,8 +49,8 @@ const searchLocation = () => {
             type: f.properties.osm_value,
             country: f.properties.country,
             display_name: f.properties.name + ' (' + f.properties.type + ' in ' + f.properties.country + ')',
-            lon: f.geometry.coordinates[1],
-            lat: f.geometry.coordinates[0],
+            lon: f.geometry.coordinates[0],
+            lat: f.geometry.coordinates[1],
         }))
         //console.log(selectedLocationSuggestions.value)
     }).catch(error => {
@@ -72,7 +72,7 @@ const setLocationToUserComplete = (newLon, newLat) => {
     selectedLocation.value.lon = newLon
     selectedLocation.value.lat = newLat
     selectedLocation.value.display_name = 'Current location'
-    setLocation(newLat, newLon)
+    setLocation(newLon, newLat)
 }
 
 const setLocationToUserError = (message, code) => {
@@ -99,7 +99,7 @@ defineExpose({
             @complete="searchLocation" 
             @option-select="setLocation(selectedLocation.lon, selectedLocation.lat)" />
         <Button id="searchButton" @click=''>Search</Button>
-        <span id="coordinates">Selected coordinates: {{ selectedLocation.lat }}, {{ selectedLocation.lon }}</span>
+        <span id="coordinates">Selected coordinates: Lat: {{ selectedLocation.lat }}, Lon: {{ selectedLocation.lon }}</span>
         <Button id="locateButton" @click='setLocationToUser'>
             <i v-if="setLocationToUserInProgress" class="pi pi-spin pi-spinner" style="font-size: 1rem"></i>
             Find me

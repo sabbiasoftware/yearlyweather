@@ -15,7 +15,7 @@ const weatherStatistics = useTemplateRef('weatherStatistics');
 function generateStats() {
     //console.log('Selected dates:', dateSelector.value.selectedDates);
     //console.log('Selected location:', locator.value.selectedLocation.lon);
-    weatherStatistics.value.generateStatistics(locator.value.selectedLocation.lat, locator.value.selectedLocation.lon, dateSelector.value.selectedDates, 3);
+    weatherStatistics.value.generateStatistics(locator.value.selectedLocation.lon, locator.value.selectedLocation.lat, dateSelector.value.selectedDates, 3);
 }
 
 </script>
