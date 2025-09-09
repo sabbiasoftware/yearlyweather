@@ -6,6 +6,8 @@ import axios from 'axios';
 import { ref } from 'vue';
 
 import mockRawData from './MockStats.js'
+import WMOCodes from './WMOCodes.js';
+
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -15,23 +17,27 @@ import {
   Title,
   Tooltip,
   Legend,
-  Filler
+  Filler,
+  BarElement
 } from 'chart.js'
-import { Line } from 'vue-chartjs'
+import { Line, Bar } from 'vue-chartjs'
+import autocolors from 'chartjs-plugin-autocolors';
 
 ChartJS.register(
   CategoryScale,
   LinearScale,
   PointElement,
   LineElement,
+  BarElement,
   Title,
   Tooltip,
   Legend,
-  Filler
+  Filler,
+  autocolors
 )
 
 const categoricalFields = [ "weather_code" ];
-const numericalFields = [ "temperature_2m_min", "temperature_2m_max", "temperature_2m_mean", "rain_sum", "snowfall_sum", "wind_speed_10m_max" ];
+const numericalFields = [ "temperature_2m_min", "temperature_2m_max", "temperature_2m_mean", "wind_speed_10m_max", "precipitation_hours", "rain_sum", "snowfall_sum" ];
 
 var lon = 0
 var lat = 0
@@ -39,7 +45,13 @@ var selectedDates = []
 var daydelta = 0
 
 var rawData = []
+var dayNumLabels = []
+
 const generationProgress = ref(100);
+
+function dateToISO(date) {
+    return date.getFullYear().toString() + "-" + (date.getMonth() + 1).toString().padStart(2, "0") + "-" + date.getDate().toString().padStart(2, "0")
+}
 
 function downloadNextStat() {
     console.log('Downloading weather data for date index', rawData.length);
@@ -52,8 +64,8 @@ function downloadNextStat() {
         params: {
             latitude: lat,
             longitude: lon,
-            start_date: sd.toISOString().split('T')[0],
-            end_date: ed.toISOString().split('T')[0],
+            start_date: dateToISO(sd),
+            end_date: dateToISO(ed),
             daily: categoricalFields.concat(numericalFields).join(","),
             timezone: 'auto',
         }
@@ -72,7 +84,7 @@ function downloadNextStat() {
     }
     else {
         generationProgress.value = 100
-        calculateStatistics()
+        calculateStats()
     }
 }
 
@@ -81,25 +93,32 @@ function generateStatistics(_lon, _lat, _selectedDates, _daydelta) {
     lat = _lat;
     selectedDates = _selectedDates;
     daydelta = _daydelta;
-    console.log('Generating statistics for', lon, lat, selectedDates);
+    //console.log('Generating statistics for', lon, lat, selectedDates);
 
-    rawData = mockRawData
-    calculateStatistics();
+    // MOCK
+    //rawData = mockRawData
+    //calculateStats();
 
-    //generationProgress.value = 0;
-    //downloadNextStat();
+    // DOWNLOAD
+    generationProgress.value = 0;
+    downloadNextStat();
 }
 
-const data_temperature = ref(null)
-const options_temperature = ref({
-    responsive: true,
-    //maintainAspectRatio: false
-})
+
+
+
+
+
+
+
+// **************************************************
+// HELPERS
+// **************************************************
 
 function getDayData(dayIndex, field) {
     const result = []
-    for (let i = 0; i < rawData.length; i++) {
-        result.push(rawData[i][field][dayIndex])
+    for (let yearIndex = 0; yearIndex < rawData.length; yearIndex++) {
+        result.push(rawData[yearIndex][field][dayIndex])
     }
     return result
 }
@@ -116,28 +135,114 @@ function max(s) {
     return Math.max(...s);
 }
 
-function calculateStatistics() {
-    // Implement statistics calculation here
-    // This is a placeholder function
-    console.log('Calculating statistics from raw data', rawData);
-    console.log(rawData[0].temperature_2m_mean);
-    
+
+
+
+
+
+
+
+// **************************************************
+// CALCULATION LOGIC, MIGHT DESERVE A SEPARATE MODULE
+// **************************************************
+
+const chart_options = ref({ responsive: true })
+
+const data_code = ref(null)
+const data_temp = ref(null)
+const data_wind = ref(null)
+const data_prec = ref(null)
+const data_rain = ref(null)
+const data_snow = ref(null)
+
+function resetStats() {
+    data_code.value = null
+    data_temp.value = null
+    data_wind.value = null
+    data_prec.value = null
+    data_rain.value = null
+    data_snow.value = null
+
+    const dayNum = 2 * daydelta + 1
+    for (let dayIndex = 0; dayIndex < dayNum; dayIndex++) {
+        dayNumLabels.push('Day ' + (dayIndex > daydelta ? "+" : "") + (dayIndex - daydelta))
+    }
+}
+
+function calculateStats()
+{
+    console.log(rawData)
+
+    resetStats()
+    calculateCodeStats()
+    calculateTempStats()
+    calculateFieldStats("wind_speed_10m_max", "wind km/h", data_wind)
+    calculateFieldStats("precipitation_hours", "precipitation hours", data_prec)
+    calculateFieldStats("rain_sum", "rain mm", data_rain)
+    calculateFieldStats("snowfall_sum", "snow cm", data_snow)
+ }
+
+var z = 0
+
+function getCodeLabel(code) {
+    const codeString = code.toString()
+
+    if (codeString in WMOCodes) {
+        return WMOCodes[codeString]["day"]["description"]
+    }
+    else {
+        return codeString
+    }
+}
+
+function calculateCodeStats() {
+    const dayNum = 2 * daydelta + 1
+    const yearNum = rawData.length
+
+    // rawData[yearIndex][field][dayIndex]
+    // codes[code][day] = count-over-years
+    const codes = new Map()
+
+    for (let dayIndex = 0; dayIndex < dayNum; dayIndex++) {
+        for (let yearIndex = 0; yearIndex < yearNum; yearIndex++) {
+            const c = rawData[yearIndex]["weather_code"][dayIndex]
+            if (!codes.has(c)) {
+                codes.set(c, new Array(dayNum).fill(0))
+            }
+            codes.get(c)[dayIndex]++
+        }
+    }
+
+    const codePercentDatasets = []
+    for (const [code, counts] of codes) {
+        codePercentDatasets.push({
+            label: getCodeLabel(code),
+            data: counts.map( (c) => 100 * c / yearNum ),
+            stack: "Stack 0"
+        })
+    }
+
+    data_code.value = {
+        labels: dayNumLabels,
+        datasets: codePercentDatasets
+    }
+}
+
+function calculateTempStats() {
     const dayNum = 2 * daydelta + 1
 
-    const temperature_labels = []
     const temperatures_min = []
     const temperatures_mean = []
     const temperatures_max = []
 
     for (let dayIndex = 0; dayIndex < dayNum; dayIndex++) {
-        temperature_labels.push('Day ' + (dayIndex - daydelta))
         temperatures_min.push(min(getDayData(dayIndex, 'temperature_2m_min')))
         temperatures_mean.push(mean(getDayData(dayIndex, 'temperature_2m_mean')))
         temperatures_max.push(max(getDayData(dayIndex, 'temperature_2m_max')))
     }
     
-    data_temperature.value = {
-        labels: temperature_labels,
+    data_temp.value = {
+        labels: dayNumLabels,
         datasets: [
             {
                 label: 'Mean Temperature',
@@ -163,6 +268,34 @@ function calculateStatistics() {
     }
 }
 
+function calculateFieldStats(fieldId, fieldDisplayName, dataRef) {
+    const dayNum = 2 * daydelta + 1
+
+    const field_mean = []
+    const field_max = []
+
+    for (let dayIndex = 0; dayIndex < dayNum; dayIndex++) {
+        field_mean.push(mean(getDayData(dayIndex, fieldId)))
+        field_max.push(max(getDayData(dayIndex, fieldId)))
+    }
+
+    dataRef.value = {
+        labels: dayNumLabels,
+        datasets: [
+            {
+                label: 'Mean ' + fieldDisplayName,
+                backgroundColor: '#f87979',
+                data: field_mean
+            },
+            {
+                label: 'Max ' + fieldDisplayName,
+                backgroundColor: '#fbbf24',
+                data: field_max
+            }
+        ]
+    }
+}
+
 defineExpose({
     generateStatistics
 })
@@ -170,8 +303,22 @@ defineExpose({
 </script>
 
 <template>
-    <div>
         <ProgressBar v-if="generationProgress < 100" :value="generationProgress" :showValue="false" style="height: 6px; margin-top: 10px; margin-bottom: 10px;"></ProgressBar>
-        <Line v-if="data_temperature" :data="data_temperature" :options="options_temperature"></Line>
+    <div id="chartGrid">
+        <div id="chartCode"><Bar v-if="data_code" :data="data_code" :options="chart_options"></Bar></div>
+        <div id="chartTemp"><Line v-if="data_temp" :data="data_temp" :options="chart_options"></Line></div>
+        <div id="chartWind"><Line v-if="data_wind" :data="data_wind" :options="chart_options"></Line></div>
+        <div id="chartPrec"><Line v-if="data_prec" :data="data_prec" :options="chart_options"></Line></div>
+        <div id="chartRain"><Line v-if="data_rain" :data="data_rain" :options="chart_options"></Line></div>
+        <div id="chartSnow"><Line v-if="data_snow" :data="data_snow" :options="chart_options"></Line></div>
     </div>
 </template>
+
+<style>
+    #chartGrid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        column-gap: 8px;
+        row-gap: 8px;
+    }
+</style>
