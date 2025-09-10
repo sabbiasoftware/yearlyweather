@@ -22,10 +22,10 @@ const mode = ref(modes.value[0]);
 const weekdayFormatter = new Intl.DateTimeFormat("en-US", { weekday: "long" })
 const monthFormatter = new Intl.DateTimeFormat("en-US", { month: "long" })
 
-const selectedDates = ref([]);
+const selectedDateRanges = ref([])
 
 defineExpose({
-    selectedDates, dayDelta
+    selectedDateRanges, dayDelta
 })
 
 // return the weekday and its number in the month, eg { 7, 2 } for second Saturday of any month
@@ -70,13 +70,13 @@ function updateModes() {
     }
 }
 
-function updateSelectedDates() {
-    selectedDates.value = [];
+function updateSelectedDateRanges() {
+    selectedDateRanges.value = [];
     const baseWeekdayN = getWeekdayAndN(baseDate.value);
     const baseWeekdayAndNToLast = getWeekdayAndNToLast(baseDate.value);
     const today = new Date();
     today.setHours(0,0,0,0);
-    for (let year = baseDate.value.getFullYear(); selectedDates.value.length < yearNum.value; year--) {
+    for (let year = baseDate.value.getFullYear(); selectedDateRanges.value.length < yearNum.value; year--) {
         let date;
         switch (mode.value.id) {
             case 0: // Same month and day
@@ -90,18 +90,19 @@ function updateSelectedDates() {
                 break;
         }
 
+        const startDate = new Date(date.getFullYear(), date.getMonth(), date.getDate() - dayDelta.value);
         const endDate = new Date(date.getFullYear(), date.getMonth(), date.getDate() + dayDelta.value);
         if (endDate < today) {
-            selectedDates.value.push(date);
+            selectedDateRanges.value.push( { start: startDate, end: endDate } );
         }
 
-        // selectedDates.reverse();
+        // selectedDateRanges.reverse();
     }
 }
 
 function updateAll() {
     updateModes();
-    updateSelectedDates();
+    updateSelectedDateRanges();
 }
 
 updateAll();
@@ -138,13 +139,13 @@ updateAll();
     <div>
         <span>Selected {{ dayDelta > 0 ? "date ranges:" : "dates:" }}</span>
         <ul>
-            <li v-if="dayDelta == 0" v-for="date in selectedDates" :key="date.toISOString()">
-                {{ new Date(date.getFullYear(), date.getMonth(), date.getDate()).toLocaleDateString("en-US", { weekday: "short", year: "numeric", month: "short", day: "numeric" } ) }}
+            <li v-if="dayDelta == 0" v-for="range in selectedDateRanges" :key="range.start.toISOString()">
+                {{ range.start.toLocaleDateString("en-US", { weekday: "short", year: "numeric", month: "short", day: "numeric" } ) }}
             </li>
-            <li v-if="dayDelta > 0" v-for="date in selectedDates" :key="date.toISOString()">
-                {{ new Date(date.getFullYear(), date.getMonth(), date.getDate() - dayDelta).toLocaleDateString("en-US", { weekday: "short", year: "numeric", month: "short", day: "numeric" } ) }}
+            <li v-if="dayDelta > 0" v-for="range in selectedDateRanges" :key="range.start.toISOString()">
+                {{ range.start.toLocaleDateString("en-US", { weekday: "short", year: "numeric", month: "short", day: "numeric" } ) }}
                 -
-                {{ new Date(date.getFullYear(), date.getMonth(), date.getDate() + dayDelta).toLocaleDateString("en-US", { weekday: "short", year: "numeric", month: "short", day: "numeric" } ) }}
+                {{ range.end.toLocaleDateString("en-US", { weekday: "short", year: "numeric", month: "short", day: "numeric" } ) }}
             </li>
         </ul>
     </div>

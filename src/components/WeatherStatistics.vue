@@ -41,11 +41,9 @@ const numericalFields = [ "temperature_2m_min", "temperature_2m_max", "temperatu
 
 var lon = 0
 var lat = 0
-var selectedDates = []
-var dayDelta = 0
+var selectedDateRanges = []
 
 var rawData = []
-var dayNumLabels = []
 
 const generationProgress = ref(100);
 
@@ -56,25 +54,22 @@ function dateToISO(date) {
 function downloadNextStat() {
     console.log('Downloading weather data for date index', rawData.length);
 
-    const d = selectedDates[rawData.length];
-    const sd = new Date(d.getFullYear(), d.getMonth(), d.getDate() - dayDelta);
-    const ed = new Date(d.getFullYear(), d.getMonth(), d.getDate() + dayDelta);
+    const range = selectedDateRanges[rawData.length];
 
     axios.get('https://archive-api.open-meteo.com/v1/archive', {
         params: {
             latitude: lat,
             longitude: lon,
-            start_date: dateToISO(sd),
-            end_date: dateToISO(ed),
+            start_date: dateToISO(range.start),
+            end_date: dateToISO(range.end),
             daily: categoricalFields.concat(numericalFields).join(","),
             timezone: 'auto',
         }
     }).then(response => {
-        console.log('Weather data downloaded for ' + d.toISOString().split('T')[0]);
-        console.log('Weather data downloaded for ' + d.toISOString().split('T')[0]);
+        console.log('Weather data downloaded for ' + dateToISO(range.start) + " - " + dateToISO(range.end));
         rawData.push(response.data.daily);
-        generationProgress.value += (100 / selectedDates.length);  
-        if (rawData.length < selectedDates.length - 1) {
+        generationProgress.value += (100 / selectedDateRanges.length);  
+        if (rawData.length < selectedDateRanges.length - 1) {
             setTimeout(downloadNextStat, 1000); // To avoid hitting rate limits
         }
         else {
@@ -86,20 +81,19 @@ function downloadNextStat() {
     });
 }
 
-function generateStatistics(_lon, _lat, _selectedDates, _dayDelta) {
+function generateStatistics(_lon, _lat, _selectedDateRanges) {
     lon = _lon;
     lat = _lat;
-    selectedDates = _selectedDates;
-    dayDelta = _dayDelta;
-    console.log('Generating statistics for ', lon, lat, selectedDates, _dayDelta);
+    selectedDateRanges = _selectedDateRanges;
+    console.log('Generating statistics for ', lon, lat, selectedDateRanges);
 
     // MOCK
-    //rawData = mockRawData
-    //calculateStats();
+    rawData = mockRawData
+    calculateStats();
 
     // DOWNLOAD
-    generationProgress.value = 0;
-    downloadNextStat();
+    //generationProgress.value = 0;
+    //downloadNextStat();
 }
 
 
@@ -133,6 +127,12 @@ function max(s) {
     return Math.max(...s);
 }
 
+function dayAbsDiff(startDate, endDate) {
+    let timeDifference = Math.abs(endDate - startDate);
+    let daysDifference = timeDifference / (1000 * 3600 * 24);
+    return daysDifference;
+}
+
 
 
 
@@ -145,6 +145,10 @@ function max(s) {
 // **************************************************
 
 const chart_options = ref({ responsive: true })
+
+var yearNum = 0
+var dayNum = 0
+var dayNumLabels = []
 
 const data_code = ref(null)
 const data_temp = ref(null)
@@ -161,9 +165,14 @@ function resetStats() {
     data_rain.value = null
     data_snow.value = null
 
-    const dayNum = 2 * dayDelta + 1
+    yearNum = rawData.length
+    dayNum = rawData[0].time.length;
+    
+    const day0index = Math.floor((dayNum - 1) / 2);
+
+    dayNumLabels = []
     for (let dayIndex = 0; dayIndex < dayNum; dayIndex++) {
-        dayNumLabels.push('Day ' + (dayIndex > dayDelta ? "+" : "") + (dayIndex - dayDelta))
+        dayNumLabels.push('Day ' + (dayIndex > day0index ? "+" : "") + (dayIndex - day0index).toString())
     }
 }
 
@@ -194,9 +203,6 @@ function getCodeLabel(code) {
 }
 
 function calculateCodeStats() {
-    const dayNum = 2 * dayDelta + 1
-    const yearNum = rawData.length
-
     // rawData[yearIndex][field][dayIndex]
     // codes[code][day] = count-over-years
     const codes = new Map()
@@ -227,8 +233,6 @@ function calculateCodeStats() {
 }
 
 function calculateTempStats() {
-    const dayNum = 2 * dayDelta + 1
-
     const temperatures_min = []
     const temperatures_mean = []
     const temperatures_max = []
@@ -267,8 +271,6 @@ function calculateTempStats() {
 }
 
 function calculateFieldStats(fieldId, fieldDisplayName, dataRef) {
-    const dayNum = 2 * dayDelta + 1
-
     const field_mean = []
     const field_max = []
 
