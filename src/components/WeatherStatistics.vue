@@ -42,7 +42,7 @@ const numericalFields = [ "temperature_2m_min", "temperature_2m_max", "temperatu
 var lon = 0
 var lat = 0
 var selectedDates = []
-var daydelta = 0
+var dayDelta = 0
 
 var rawData = []
 var dayNumLabels = []
@@ -55,10 +55,10 @@ function dateToISO(date) {
 
 function downloadNextStat() {
     console.log('Downloading weather data for date index', rawData.length);
-    console.log(selectedDates);
+
     const d = selectedDates[rawData.length];
-    const sd = new Date(d.getFullYear(), d.getMonth(), d.getDate() - daydelta);
-    const ed = new Date(d.getFullYear(), d.getMonth(), d.getDate() + daydelta);
+    const sd = new Date(d.getFullYear(), d.getMonth(), d.getDate() - dayDelta);
+    const ed = new Date(d.getFullYear(), d.getMonth(), d.getDate() + dayDelta);
 
     axios.get('https://archive-api.open-meteo.com/v1/archive', {
         params: {
@@ -71,29 +71,27 @@ function downloadNextStat() {
         }
     }).then(response => {
         console.log('Weather data downloaded for ' + d.toISOString().split('T')[0]);
+        console.log('Weather data downloaded for ' + d.toISOString().split('T')[0]);
         rawData.push(response.data.daily);
+        generationProgress.value += (100 / selectedDates.length);  
+        if (rawData.length < selectedDates.length - 1) {
+            setTimeout(downloadNextStat, 1000); // To avoid hitting rate limits
+        }
+        else {
+            generationProgress.value = 100
+            calculateStats()
+        }
     }).catch(error => {
-        console.error('Error downloading weather data for ' + d.toISOString().split('T')[0]);
-    }).finally(() => {
-        generationProgress.value += (100 / selectedDates.length);
-        
+        console.error('****** Error downloading weather data for ' + d.toISOString().split('T')[0]);
     });
-
-    if (rawData.length < selectedDates.length - 1) {
-        setTimeout(downloadNextStat, 1000); // To avoid hitting rate limits
-    }
-    else {
-        generationProgress.value = 100
-        calculateStats()
-    }
 }
 
-function generateStatistics(_lon, _lat, _selectedDates, _daydelta) {
+function generateStatistics(_lon, _lat, _selectedDates, _dayDelta) {
     lon = _lon;
     lat = _lat;
     selectedDates = _selectedDates;
-    daydelta = _daydelta;
-    //console.log('Generating statistics for', lon, lat, selectedDates);
+    dayDelta = _dayDelta;
+    console.log('Generating statistics for ', lon, lat, selectedDates, _dayDelta);
 
     // MOCK
     //rawData = mockRawData
@@ -163,9 +161,9 @@ function resetStats() {
     data_rain.value = null
     data_snow.value = null
 
-    const dayNum = 2 * daydelta + 1
+    const dayNum = 2 * dayDelta + 1
     for (let dayIndex = 0; dayIndex < dayNum; dayIndex++) {
-        dayNumLabels.push('Day ' + (dayIndex > daydelta ? "+" : "") + (dayIndex - daydelta))
+        dayNumLabels.push('Day ' + (dayIndex > dayDelta ? "+" : "") + (dayIndex - dayDelta))
     }
 }
 
@@ -196,7 +194,7 @@ function getCodeLabel(code) {
 }
 
 function calculateCodeStats() {
-    const dayNum = 2 * daydelta + 1
+    const dayNum = 2 * dayDelta + 1
     const yearNum = rawData.length
 
     // rawData[yearIndex][field][dayIndex]
@@ -229,7 +227,7 @@ function calculateCodeStats() {
 }
 
 function calculateTempStats() {
-    const dayNum = 2 * daydelta + 1
+    const dayNum = 2 * dayDelta + 1
 
     const temperatures_min = []
     const temperatures_mean = []
@@ -269,7 +267,7 @@ function calculateTempStats() {
 }
 
 function calculateFieldStats(fieldId, fieldDisplayName, dataRef) {
-    const dayNum = 2 * daydelta + 1
+    const dayNum = 2 * dayDelta + 1
 
     const field_mean = []
     const field_max = []

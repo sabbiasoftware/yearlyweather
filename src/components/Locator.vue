@@ -3,6 +3,7 @@
 import { ref } from 'vue'
 import AutoComplete from 'primevue/autocomplete';
 import Button from 'primevue/button';
+import { FloatLabel } from 'primevue';
 import Map from './Map.vue'
 import axios from 'axios';
 
@@ -40,7 +41,7 @@ const searchLocation = () => {
         params: {
             q: query,
             //format: 'json',
-            limit: 5
+            limit: 10
         }
     }).then(response => {
         selectedLocationSuggestions.value = response.data.features.map(f => ({
@@ -87,17 +88,20 @@ defineExpose({
 
 <template>
     <div id="locator">
-        <AutoComplete
-            id="locationText" 
-            v-model="selectedLocation" 
-            :delay="1000" 
-            :suggestions="selectedLocationSuggestions" 
-            
-            dropdown 
-            fluid
-            optionLabel="display_name" 
-            @complete="searchLocation" 
-            @option-select="setLocation(selectedLocation.lon, selectedLocation.lat)" />
+        <FloatLabel variant="in">
+            <AutoComplete
+                id="locationText" 
+                v-model="selectedLocation" 
+                :delay="1000" 
+                :suggestions="selectedLocationSuggestions" 
+                
+                dropdown 
+                fluid
+                optionLabel="display_name" 
+                @complete="searchLocation" 
+                @option-select="setLocation(selectedLocation.lon, selectedLocation.lat)" />
+            <label for="locationText">Search place by name</label>
+        </FloatLabel>
         <Button id="searchButton" @click=''>Search</Button>
         <span id="coordinates">Selected coordinates: Lat: {{ selectedLocation.lat }}, Lon: {{ selectedLocation.lon }}</span>
         <Button id="locateButton" @click='setLocationToUser'>

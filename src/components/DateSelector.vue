@@ -4,10 +4,13 @@ import { ref } from 'vue';
 import DatePicker from 'primevue/datepicker';
 import InputNumber from 'primevue/inputnumber';
 import Select from 'primevue/select';
+import FloatLabel from 'primevue/floatlabel';
+
 
 const ordinals = ['First', 'Second', 'Third', 'Fourth', 'Fifth'];
 
 const baseDate = ref(new Date());
+const dayDelta = ref(3)
 const yearNum = ref(10)
 const modes = ref([
     { id: 0, name: 'Same month and day' },
@@ -22,10 +25,52 @@ const monthFormatter = new Intl.DateTimeFormat("en-US", { month: "long" })
 const selectedDates = ref([]);
 
 defineExpose({
-    selectedDates
+    selectedDates, dayDelta
 })
 
+// return the weekday and its number in the month, eg { 7, 2 } for second Saturday of any month
+function getWeekdayAndN(date) {
+    return { 
+        weekday: date.getDay(), 
+        n: Math.floor((date.getDate() - 1) / 7)
+    }
+}
+
+// return the weekday and its number in the month from the end, eg { 7, 2 } for second to last Saturday of any month
+function getWeekdayAndNToLast(date) {
+    const daysLeftInMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate() - date.getDate();
+    return {
+        weekday: date.getDay(),
+        n: Math.floor(daysLeftInMonth / 7)
+    }
+}
+
+function getNthWeekday(year, month, n, weekday) {
+    const firstWeekday = new Date(year, month, 1).getDay();
+    return new Date(year, month, (weekday - firstWeekday + 7) % 7 + 1 + n * 7);
+}
+
+function getNthToLastWeekday(year, month, n, weekday) {
+    const lastDate = new Date(year, month + 1, 0);
+    const lastDay = lastDate.getDate();
+    const lastWeekday = lastDate.getDay();
+    return new Date(year, month, lastDay - (lastWeekday - weekday + 7) % 7 - n * 7)
+}
+
 function updateModes() {
+    const weekdayAndN = getWeekdayAndN(baseDate.value)
+    const weekdayAndNToLast = getWeekdayAndNToLast(baseDate.value)
+    const weekdayString = weekdayFormatter.format(baseDate.value);
+
+    modes.value[1].name = `${ordinals[weekdayAndN.n]} ${weekdayString} of ${monthFormatter.format(baseDate.value)}`;
+    if (weekdayAndNToLast.n == 0) {
+        modes.value[2].name = `Last ${weekdayString} of ${monthFormatter.format(baseDate.value)}`;
+    } else {
+        modes.value[2].name = `${ordinals[weekdayAndNToLast.n]} to last ${weekdayString} of ${monthFormatter.format(baseDate.value)}`;
+    }
+}
+
+function updateModes2() {
     //const weekday = baseDate.value.getDay(); // 0 (Sun) to 6 (Sat)
     const n = Math.floor((baseDate.value.getDate() - 1) / 7); // 0 to 4
     const daysLeftInMonth = new Date(baseDate.value.getFullYear(), baseDate.value.getMonth() + 1, 0).getDate() - baseDate.value.getDate();
@@ -39,7 +84,7 @@ function updateModes() {
     }
 }
 
-function updateSelectedDates() {
+function updateSelectedDates2() {
     selectedDates.value = [];
     const baseYear = baseDate.value.getFullYear();
     for (let year = baseYear - yearNum.value; year < baseYear; year++) {
@@ -68,6 +113,37 @@ function updateSelectedDates() {
     }
 }
 
+
+
+function updateSelectedDates() {
+    selectedDates.value = [];
+    const baseWeekdayN = getWeekdayAndN(baseDate.value);
+    const baseWeekdayAndNToLast = getWeekdayAndNToLast(baseDate.value);
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    for (let year = baseDate.value.getFullYear(); selectedDates.value.length < yearNum.value; year--) {
+        let date;
+        switch (mode.value.id) {
+            case 0: // Same month and day
+                date = new Date(year, baseDate.value.getMonth(), baseDate.value.getDate());
+                break;
+            case 1: // First nth weekday of month
+                date = getNthWeekday(year, baseDate.value.getMonth(), baseWeekdayN.n, baseWeekdayN.weekday)
+                break;
+            case 2: // Nth to last weekday of month
+                date = getNthToLastWeekday(year, baseDate.value.getMonth(), baseWeekdayAndNToLast.n, baseWeekdayAndNToLast.weekday)
+                break;
+        }
+
+        const endDate = new Date(date.getFullYear(), date.getMonth(), date.getDate() + dayDelta.value);
+        if (endDate < today) {
+            selectedDates.value.push(date);
+        }
+
+        // selectedDates.reverse();
+    }
+}
+
 function updateAll() {
     updateModes();
     updateSelectedDates();
@@ -79,43 +155,58 @@ updateAll();
 <template>
 
     <div id="dateSelector">
-        <DatePicker v-model="baseDate" :show-icon="true" @update:model-value="updateAll"/>
-        <InputNumber v-model="yearNum" :min="1" mode="decimal" show-buttons buttonLayout="horizontal" :step="1" @update:model-value="updateAll" />
-        <Select v-model="mode" :options="modes" option-label="name" checkmark @update:model-value="updateAll" />
+        <div>
+        <FloatLabel variant="in">
+            <DatePicker fluid inputId="baseDateSelector" v-model="baseDate" :show-icon="true" @update:model-value="updateAll" />
+            <label for="baseDateSelector">Base date</label>
+        </FloatLabel>
+    </div>
+
+        <FloatLabel variant="in">
+            <InputNumber fluid inputId="dayDeltaSelector" v-model="dayDelta" :min="0" :max="180" mode="decimal" show-buttons buttonLayout="horizontal" :step="1" :allowEmtpy="false" @update:model-value="updateAll" />
+            <label for="dayDeltaSelector">Day delta</label>
+        </FloatLabel>
+
+        <FloatLabel variant="in">
+            <InputNumber fluid inputId="yearNumSelector" v-model="yearNum" :min="1" mode="decimal" show-buttons buttonLayout="horizontal" :step="1" @update:model-value="updateAll" />
+            <label for="yearNumSelector">Number of years</label>
+        </FloatLabel>
+
+        <FloatLabel variant="in">
+            <Select fluid inputId="modeSelector" v-model="mode" :options="modes" option-label="name" checkmark @update:model-value="updateAll" />
+            <label for="modeSelector">Day calculation mode</label>
+        </FloatLabel>
     </div>
 
     <br/>
 
     <div>
-        <span>Selected dates:</span>
+        <span>Selected {{ dayDelta > 0 ? "date ranges:" : "dates:" }}</span>
         <ul>
-            <li v-for="date in selectedDates" :key="date.toISOString()">{{ date.toDateString() }}</li>
+            <li v-if="dayDelta == 0" v-for="date in selectedDates" :key="date.toISOString()">
+                {{ new Date(date.getFullYear(), date.getMonth(), date.getDate()).toLocaleDateString("en-US", { weekday: "short", year: "numeric", month: "short", day: "numeric" } ) }}
+            </li>
+            <li v-if="dayDelta > 0" v-for="date in selectedDates" :key="date.toISOString()">
+                {{ new Date(date.getFullYear(), date.getMonth(), date.getDate() - dayDelta).toLocaleDateString("en-US", { weekday: "short", year: "numeric", month: "short", day: "numeric" } ) }}
+                -
+                {{ new Date(date.getFullYear(), date.getMonth(), date.getDate() + dayDelta).toLocaleDateString("en-US", { weekday: "short", year: "numeric", month: "short", day: "numeric" } ) }}
+            </li>
         </ul>
     </div>
 
 </template>
 
 <style scoped>
+    span.test {
+        background-color: red;
+    }
+
     #dateSelector {
         display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
+        grid-template-columns: 1fr 1fr 1fr 2fr;
         column-gap: 8px;
         row-gap: 8px;
     }
 
-    .p-datepicker {
-        grid-row: 1;
-        grid-column: 1 / 2;
-    }
-
-    .p-inputnumber {
-        grid-row: 1;
-        grid-column: 2 / 3;
-    }
-
-    .p-listbox {
-        grid-row: 1;
-        grid-column: 3 / 4;
-    }
 
 </style>

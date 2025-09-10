@@ -7,12 +7,7 @@ var map = null
 var marker = null
 
 const setLocation = (lon, lat) => {
-    if (marker) {
-        marker.setLatLng( { lat: lat, lng: lon } )
-    }
-    else {
-        marker = L.marker( { lat: lat, lng: lon } ).addTo(map)
-    }
+    marker.setLatLng( { lat: lat, lng: lon } )
     map.flyTo(new L.LatLng(lat, lon), 10)
 }
 
@@ -45,6 +40,8 @@ onMounted(() => {
         maxZoom: 19,
         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(map);
+
+    marker = L.marker( { lat: 0, lng: 0 } ).addTo(map)
 
 });
 
