@@ -70,51 +70,6 @@ function updateModes() {
     }
 }
 
-function updateModes2() {
-    //const weekday = baseDate.value.getDay(); // 0 (Sun) to 6 (Sat)
-    const n = Math.floor((baseDate.value.getDate() - 1) / 7); // 0 to 4
-    const daysLeftInMonth = new Date(baseDate.value.getFullYear(), baseDate.value.getMonth() + 1, 0).getDate() - baseDate.value.getDate();
-    const nn = Math.floor(daysLeftInMonth / 7); // 0 to 4
-    const weekdayString = weekdayFormatter.format(baseDate.value);
-    modes.value[1].name = `${ordinals[n]} ${weekdayString} of ${monthFormatter.format(baseDate.value)}`;
-    if (nn == 0) {
-        modes.value[2].name = `Last ${weekdayString} of ${monthFormatter.format(baseDate.value)}`;
-    } else {
-        modes.value[2].name = `${ordinals[nn]} to last ${weekdayString} of ${monthFormatter.format(baseDate.value)}`;
-    }
-}
-
-function updateSelectedDates2() {
-    selectedDates.value = [];
-    const baseYear = baseDate.value.getFullYear();
-    for (let year = baseYear - yearNum.value; year < baseYear; year++) {
-        let date;
-        switch (mode.value.id) {
-            case 0: // Same month and day
-                date = new Date(year, baseDate.value.getMonth(), baseDate.value.getDate());
-                break;
-            case 1: // First weekday of month
-                date = new Date(year, baseDate.value.getMonth(), 1);
-                while (date.getDay() != baseDate.value.getDay()) {
-                    date.setDate(date.getDate() + 1);
-                }
-                break;
-            case 2: // Second to last weekday of month
-                date = new Date(year, baseDate.value.getMonth() + 1, 0); // Last day of month
-                while (date.getDay() != baseDate.value.getDay()) {
-                    date.setDate(date.getDate() - 1);
-                }
-                if (date.getDate() > 7) {
-                    date.setDate(date.getDate() - 7);
-                }
-                break;
-        }
-        selectedDates.value.push(date);
-    }
-}
-
-
-
 function updateSelectedDates() {
     selectedDates.value = [];
     const baseWeekdayN = getWeekdayAndN(baseDate.value);
