@@ -29,20 +29,20 @@ function generateStats() {
     <div>
         <br/>
 
-        <Panel header="Step 1: select location">
+        <Panel header="Step 1: Select location">
             <Locator ref="locator"></Locator>
         </Panel>
 
         <br/>
 
-        <Panel header="Step 2: select date">
+        <Panel header="Step 2: Select dates / date ranges">
             <DateSelector ref="dateSelector"></DateSelector>
         </Panel>
 
         <br/>
 
-        <Panel header="Step 3: view weather stats">
-            <Button label="Generate stats" @click="generateStats"></Button>
+        <Panel header="Step 3: View weather stats">
+            <Button label="Fetch stats" icon="pi pi-chart-bar" @click="generateStats"></Button>
             <WeatherStatistics ref="weatherStatistics"></WeatherStatistics>
         </Panel>
 
@@ -53,5 +53,6 @@ function generateStats() {
 <style scoped>
     button {
         margin-bottom: 2rem;
+        height: 3.2rem;
     }
 </style>
