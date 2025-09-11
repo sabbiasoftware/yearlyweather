@@ -302,7 +302,7 @@ defineExpose({
     <ProgressBar id="bar" v-if="generationProgress < 100" :value="generationProgress" :showValue="true"></ProgressBar>
     <div id="chartControls" v-if="hasData">
         <span id="aggYears">
-            <Checkbox  inputId="aggYears" v-model="aggregateYears" binary @update:modelValue="refresh"/>
+            <Checkbox  size="large" inputId="aggYears" v-model="aggregateYears" binary @update:modelValue="refresh"/>
         </span>
         <span id="aggYearsLabel">
             <label for="aggYears">Aggregate years</label>
@@ -335,8 +335,13 @@ defineExpose({
         display: flex;
         flex-wrap: wrap;
         align-items: center;
-        margin-bottom: 2rem;
+        margin-bottom: 1rem;
         gap: 2rem;
+        min-height: 4rem;
+    }
+
+    #aggYears {
+
     }
 
     #aggYearsLabel {

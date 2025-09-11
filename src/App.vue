@@ -52,7 +52,7 @@ function generateStats() {
 
 <style scoped>
     button {
-        margin-bottom: 2rem;
+        margin-bottom: 1rem;
         height: 3.2rem;
     }
 </style>
