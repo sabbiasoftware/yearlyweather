@@ -86,27 +86,33 @@ onMounted(() => {
 <template>
 
     <div id="dateSelector">
-        <div>
-        <FloatLabel variant="in">
-            <DatePicker fluid inputId="baseDateSelector" v-model="baseDate" :show-icon="true" @update:model-value="updateAll" />
-            <label for="baseDateSelector">Base date</label>
-        </FloatLabel>
-    </div>
+        <span id="baseDateSelector">
+            <FloatLabel variant="in">
+                <DatePicker fluid inputId="baseDateSelector" v-model="baseDate" :show-icon="true" @update:model-value="updateAll" />
+                <label for="baseDateSelector">Base date</label>
+            </FloatLabel>
+        </span>
 
-        <FloatLabel variant="in">
-            <InputNumber fluid inputId="dayDeltaSelector" v-model="dayDelta" :min="0" :max="180" mode="decimal" show-buttons buttonLayout="horizontal" :step="1" :allowEmtpy="false" @update:model-value="updateAll" />
-            <label for="dayDeltaSelector">Day delta</label>
-        </FloatLabel>
+        <span id="dayDeltaSelector">
+            <FloatLabel variant="in">
+                <InputNumber fluid inputId="dayDeltaSelector" v-model="dayDelta" :min="0" :max="180" mode="decimal" show-buttons buttonLayout="horizontal" :step="1" :allowEmtpy="false" @update:model-value="updateAll" />
+                <label for="dayDeltaSelector">Day delta</label>
+            </FloatLabel>
+        </span>
 
-        <FloatLabel variant="in">
-            <InputNumber fluid inputId="yearNumSelector" v-model="yearNum" :min="1" mode="decimal" show-buttons buttonLayout="horizontal" :step="1" @update:model-value="updateAll" />
-            <label for="yearNumSelector">Number of years</label>
-        </FloatLabel>
+        <span id="yearNumSelector">
+            <FloatLabel variant="in">
+                <InputNumber fluid inputId="yearNumSelector" v-model="yearNum" :min="1" mode="decimal" show-buttons buttonLayout="horizontal" :step="1" @update:model-value="updateAll" />
+                <label for="yearNumSelector">Number of years</label>
+            </FloatLabel>
+        </span>
 
-        <FloatLabel variant="in">
-            <Select fluid inputId="modeSelector" v-model="mode" :options="modes" option-label="name" checkmark @update:model-value="updateAll" />
-            <label for="modeSelector">Day calculation mode</label>
-        </FloatLabel>
+        <span id="modeSelector">
+            <FloatLabel variant="in">
+                <Select fluid inputId="modeSelector" v-model="mode" :options="modes" option-label="name" checkmark @update:model-value="updateAll" />
+                <label for="modeSelector">Day calculation mode</label>
+            </FloatLabel>
+        </span>
     </div>
 
     <br/>
@@ -128,16 +134,26 @@ onMounted(() => {
 </template>
 
 <style scoped>
-    span.test {
-        background-color: red;
-    }
-
     #dateSelector {
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr 2fr;
-        column-gap: 8px;
-        row-gap: 8px;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
     }
 
+    #baseDateSelector {
+        flex-basis: 12rem;
+    }
+
+    #dayDeltaSelector {
+        flex-basis: 12rem;
+    }
+
+    #yearNumSelector {
+        flex-basis: 12rem;
+    }
+
+    #modeSelector {
+        flex-grow: 1;
+    }
 
 </style>
