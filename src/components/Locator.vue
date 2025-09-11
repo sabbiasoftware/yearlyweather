@@ -102,45 +102,34 @@ defineExpose({
                 @option-select="setLocation(selectedLocation.lon, selectedLocation.lat)" />
             <label for="locationText">Search place by name</label>
         </FloatLabel>
-        <Button id="searchButton" @click=''>Search</Button>
-        <span id="coordinates">Selected coordinates: Lat: {{ selectedLocation.lat }}, Lon: {{ selectedLocation.lon }}</span>
-        <Button id="locateButton" @click='setLocationToUser'>
-            <i v-if="setLocationToUserInProgress" class="pi pi-spin pi-spinner" style="font-size: 1rem"></i>
-            Find me
-        </Button>
-        <Map ref="mapComponent" @set-location-to-user-complete="setLocationToUserComplete" @set-location-to-user-error="setLocationToUserError"></Map>
+        <Button id="searchButton" label="Search" icon="pi pi-search" @click=''></Button>
+        <Button v-if="!setLocationToUserInProgress" id="locateButton" label="Find me" icon="pi pi-map-marker" @click='setLocationToUser'></Button>
+        <Button v-if="setLocationToUserInProgress" id="locateButton" label="Find me" icon="pi pi-spin pi-spinner" @click='setLocationToUser'></Button>
     </div>
+    <div id="coordinates">Selected coordinates: Lat: {{ selectedLocation.lat }}, Lon: {{ selectedLocation.lon }}</div>
+    <Map ref="mapComponent" @set-location-to-user-complete="setLocationToUserComplete" @set-location-to-user-error="setLocationToUserError"></Map>
 </template>
 
 <style scoped>
     #locator {
-        display: grid;
-        grid-template-columns: 1fr 120px 120px;
-        column-gap: 8px;
-        row-gap: 8px;
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
     }
 
     #locationText {
-        grid-row: 1;
-        grid-column: 1 / 2;
+        flex-grow: 1;
     }
 
     #searchButton {
-        grid-row: 1;
-        grid-column: 2;
-    }
-
-    #coordinates {
-        grid-row: 2;
-        grid-column: 1 / 4;
+        flex-basis: 10rem;
     }
 
     #locateButton {
-        grid-row: 1;
-        grid-column: 3;
+        flex-basis: 10rem;
     }
 
-    #map {
-        grid-column: 1 / 3;
+    #coordinates {
+        margin-bottom: 0.5rem;
     }
 </style>
