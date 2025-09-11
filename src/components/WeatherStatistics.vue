@@ -2,6 +2,8 @@
 
 import ProgressBar from 'primevue/progressbar';
 import Slider from 'primevue/slider';
+import InputNumber from 'primevue/inputnumber';
+import { FloatLabel } from 'primevue';
 import Checkbox from 'primevue/checkbox';
 import axios from 'axios';
 import { ref } from 'vue';
@@ -299,10 +301,24 @@ defineExpose({
 <template>
     <ProgressBar id="bar" v-if="generationProgress < 100" :value="generationProgress" :showValue="true"></ProgressBar>
     <div id="chartControls" v-if="hasData">
-        <Checkbox id="aggYears" inputId="aggYears" v-model="aggregateYears" binary @update:modelValue="refresh"/>
-        <label id="aggYearsLabel" for="aggYears">Aggregate years</label>
-        <Slider id="yearBar" v-if="!aggregateYears" v-model="selectedYearIndex" :min="0" :max="yearNum-1" :step="1" @update:modelValue="refresh"></Slider>
-        <span v-if="!aggregateYears">{{ selectedDateRanges[selectedYearIndex].start.getFullYear() }}</span>
+        <span id="aggYears">
+            <Checkbox  inputId="aggYears" v-model="aggregateYears" binary @update:modelValue="refresh"/>
+        </span>
+        <span id="aggYearsLabel">
+            <label for="aggYears">Aggregate years</label>
+        </span>
+        <span id="yearBar">
+            <Slider v-if="!aggregateYears" v-model="selectedYearIndex" :min="0" :max="yearNum-1" :step="1" @update:modelValue="refresh"></Slider>
+        </span>
+        <span id="yearInput">
+            <FloatLabel variant="in">
+                <InputNumber fluid inputId="yearInput" v-if="!aggregateYears" v-model="selectedYearIndex" :min="0" :max="yearNum-1" :step="1" showButtons buttonLayout="horizontal" @update:modelValue="refresh"></InputNumber>
+                <label v-if="!aggregateYears" for="yearInput">Year #</label>
+            </FloatLabel>
+        </span>
+        <span>
+            <span v-if="!aggregateYears">{{ dateToISO(selectedDateRanges[selectedYearIndex].start) + " -- " + dateToISO(selectedDateRanges[selectedYearIndex].end) }}</span>
+        </span>
     </div>
     <div id="chartGrid">
         <div id="chartCode"><Bar v-if="data_code" :data="data_code" :options="chart_options"></Bar></div>
@@ -317,24 +333,29 @@ defineExpose({
 <style>
     #chartControls {
         display: flex;
+        flex-wrap: wrap;
         align-items: center;
         margin-bottom: 2rem;
+        gap: 2rem;
     }
 
     #aggYearsLabel {
-        margin-left: 1rem;
+        margin-left: -1rem;
     }
 
     #yearBar {
-        margin-left: 3rem;
-        margin-right: 1rem;
         flex-grow: 1;
+        min-width: 12rem;
+    }
+
+    #yearInput {
+        flex-basis: 10rem;
     }
 
     #chartGrid {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        column-gap: 8px;
-        row-gap: 8px;
+        column-gap: 1rem;
+        row-gap: 1rem;
     }
 </style>
