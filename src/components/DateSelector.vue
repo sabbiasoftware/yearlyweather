@@ -125,7 +125,7 @@ onMounted(() => {
             </li>
             <li v-if="dayDelta > 0" v-for="range in selectedDateRanges" :key="range.start.toISOString()">
                 {{ range.start.toLocaleDateString("en-US", { weekday: "short", year: "numeric", month: "short", day: "numeric" } ) }}
-                -
+                &ndash;
                 {{ range.end.toLocaleDateString("en-US", { weekday: "short", year: "numeric", month: "short", day: "numeric" } ) }}
             </li>
         </ul>

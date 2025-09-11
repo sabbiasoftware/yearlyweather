@@ -317,7 +317,7 @@ defineExpose({
             </FloatLabel>
         </span>
         <span>
-            <span v-if="!aggregateYears">{{ dateToISO(selectedDateRanges[selectedYearIndex].start) + " -- " + dateToISO(selectedDateRanges[selectedYearIndex].end) }}</span>
+            <span v-if="!aggregateYears">{{ dateToISO(selectedDateRanges[selectedYearIndex].start) + " &ndash; " + dateToISO(selectedDateRanges[selectedYearIndex].end) }}</span>
         </span>
     </div>
     <div id="chartGrid">
