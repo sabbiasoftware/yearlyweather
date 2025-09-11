@@ -15,7 +15,12 @@ const weatherStatistics = useTemplateRef('weatherStatistics');
 function generateStats() {
     //console.log('Selected dates:', dateSelector.value.selectedDates);
     //console.log('Selected location:', locator.value.selectedLocation.lon);
-    weatherStatistics.value.generateStatistics(locator.value.selectedLocation.lon, locator.value.selectedLocation.lat, dateSelector.value.selectedDateRanges);
+    weatherStatistics.value.download(
+        locator.value.selectedLocation.lon,
+        locator.value.selectedLocation.lat,
+        dateSelector.value.selectedDateRanges,
+        false // useMockData
+    );
 }
 
 </script>
@@ -44,3 +49,9 @@ function generateStats() {
         <br/>
 </div>
 </template>
+
+<style scoped>
+    button {
+        margin-bottom: 2rem;
+    }
+</style>

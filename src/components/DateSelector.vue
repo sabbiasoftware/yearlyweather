@@ -1,10 +1,11 @@
 <script setup>
 
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import DatePicker from 'primevue/datepicker';
 import InputNumber from 'primevue/inputnumber';
 import Select from 'primevue/select';
 import FloatLabel from 'primevue/floatlabel';
+import { getNthWeekday, getNthToLastWeekday, getWeekdayAndN, getWeekdayAndNToLast } from './dateHelper.js';
 
 
 const ordinals = ['First', 'Second', 'Third', 'Fourth', 'Fifth'];
@@ -27,35 +28,6 @@ const selectedDateRanges = ref([])
 defineExpose({
     selectedDateRanges, dayDelta
 })
-
-// return the weekday and its number in the month, eg { 7, 2 } for second Saturday of any month
-function getWeekdayAndN(date) {
-    return { 
-        weekday: date.getDay(), 
-        n: Math.floor((date.getDate() - 1) / 7)
-    }
-}
-
-// return the weekday and its number in the month from the end, eg { 7, 2 } for second to last Saturday of any month
-function getWeekdayAndNToLast(date) {
-    const daysLeftInMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate() - date.getDate();
-    return {
-        weekday: date.getDay(),
-        n: Math.floor(daysLeftInMonth / 7)
-    }
-}
-
-function getNthWeekday(year, month, n, weekday) {
-    const firstWeekday = new Date(year, month, 1).getDay();
-    return new Date(year, month, (weekday - firstWeekday + 7) % 7 + 1 + n * 7);
-}
-
-function getNthToLastWeekday(year, month, n, weekday) {
-    const lastDate = new Date(year, month + 1, 0);
-    const lastDay = lastDate.getDate();
-    const lastWeekday = lastDate.getDay();
-    return new Date(year, month, lastDay - (lastWeekday - weekday + 7) % 7 - n * 7)
-}
 
 function updateModes() {
     const weekdayAndN = getWeekdayAndN(baseDate.value)
@@ -96,7 +68,7 @@ function updateSelectedDateRanges() {
             selectedDateRanges.value.push( { start: startDate, end: endDate } );
         }
 
-        // selectedDateRanges.reverse();
+        selectedDateRanges.value.sort( (r1, r2) => r1.start - r2.start );
     }
 }
 
@@ -105,7 +77,10 @@ function updateAll() {
     updateSelectedDateRanges();
 }
 
-updateAll();
+onMounted(() => {
+    updateAll();
+});
+
 </script>
 
 <template>

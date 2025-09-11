@@ -1,3 +1,14 @@
+function getWMOCodeLabel(code) {
+    const codeString = code.toString()
+
+    if (codeString in WMOCodes) {
+        return WMOCodes[codeString]["day"]["description"]
+    }
+    else {
+        return codeString
+    }
+}
+
 const WMOCodes = {
 	"0":{
 		"day":{
@@ -281,4 +292,4 @@ const WMOCodes = {
 	}
 }
 
-export default WMOCodes;
+export default getWMOCodeLabel;
