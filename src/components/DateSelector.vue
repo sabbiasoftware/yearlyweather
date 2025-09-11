@@ -136,6 +136,7 @@ onMounted(() => {
 <style scoped>
     #dateSelector {
         display: flex;
+        flex-wrap: wrap;
         align-items: center;
         gap: 1rem;
     }
@@ -154,6 +155,7 @@ onMounted(() => {
 
     #modeSelector {
         flex-grow: 1;
+        min-width: 16rem;
     }
 
 </style>
