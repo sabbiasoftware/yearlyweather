@@ -321,12 +321,12 @@ defineExpose({
         </span>
     </div>
     <div id="chartGrid">
-        <div id="chartCode"><Bar v-if="data_code" :data="data_code" :options="chart_options"></Bar></div>
-        <div id="chartTemp"><Line v-if="data_temp" :data="data_temp" :options="chart_options"></Line></div>
-        <div id="chartWind"><Line v-if="data_wind" :data="data_wind" :options="chart_options"></Line></div>
-        <div id="chartPrec"><Line v-if="data_prec" :data="data_prec" :options="chart_options"></Line></div>
-        <div id="chartRain"><Line v-if="data_rain" :data="data_rain" :options="chart_options"></Line></div>
-        <div id="chartSnow"><Line v-if="data_snow" :data="data_snow" :options="chart_options"></Line></div>
+        <div id="chartCode" class="weatherChart"><Bar v-if="data_code" :data="data_code" :options="chart_options"></Bar></div>
+        <div id="chartTemp" class="weatherChart"><Line v-if="data_temp" :data="data_temp" :options="chart_options"></Line></div>
+        <div id="chartWind" class="weatherChart"><Line v-if="data_wind" :data="data_wind" :options="chart_options"></Line></div>
+        <div id="chartPrec" class="weatherChart"><Line v-if="data_prec" :data="data_prec" :options="chart_options"></Line></div>
+        <div id="chartRain" class="weatherChart"><Line v-if="data_rain" :data="data_rain" :options="chart_options"></Line></div>
+        <div id="chartSnow" class="weatherChart"><Line v-if="data_snow" :data="data_snow" :options="chart_options"></Line></div>
     </div>
 </template>
 
@@ -353,9 +353,15 @@ defineExpose({
     }
 
     #chartGrid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        column-gap: 1rem;
-        row-gap: 1rem;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 1rem;
+    }
+
+    .weatherChart {
+        width: 570px;
+        height: 300px;
+
     }
 </style>
