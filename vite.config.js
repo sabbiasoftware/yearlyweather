@@ -18,5 +18,9 @@ export default defineConfig({
 
   server: {
     cors: true
+  },
+
+  build: {
+    minify: false
   }
 })
