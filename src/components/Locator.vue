@@ -88,20 +88,22 @@ defineExpose({
 
 <template>
     <div id="locator">
-        <FloatLabel variant="in">
-            <AutoComplete
-                id="locationText" 
-                v-model="selectedLocation" 
-                :delay="1000" 
-                :suggestions="selectedLocationSuggestions" 
-                
-                dropdown 
-                fluid
-                optionLabel="display_name" 
-                @complete="searchLocation" 
-                @option-select="setLocation(selectedLocation.lon, selectedLocation.lat)" />
-            <label for="locationText">Search place by name</label>
-        </FloatLabel>
+        <span id="locationText">
+            <FloatLabel variant="in">
+                <AutoComplete
+                    id="locationInput"
+                    v-model="selectedLocation" 
+                    :delay="1000" 
+                    :suggestions="selectedLocationSuggestions" 
+                    
+                    dropdown 
+                    fluid
+                    optionLabel="display_name" 
+                    @complete="searchLocation" 
+                    @option-select="setLocation(selectedLocation.lon, selectedLocation.lat)" />
+                <label for="locationInput">Search place by name</label>
+            </FloatLabel>
+        </span>
         <Button id="searchButton" label="Search" icon="pi pi-search" @click=''></Button>
         <Button v-if="!setLocationToUserInProgress" id="locateButton" label="Find me" icon="pi pi-map-marker" @click='setLocationToUser'></Button>
         <Button v-if="setLocationToUserInProgress" id="locateButton" label="Find me" icon="pi pi-spin pi-spinner" @click='setLocationToUser'></Button>
@@ -113,12 +115,14 @@ defineExpose({
 <style scoped>
     #locator {
         display: flex;
+        flex-wrap: wrap;
         gap: 1rem;
         margin-bottom: 2rem;
     }
 
     #locationText {
         flex-grow: 1;
+        min-width: 16rem;
     }
 
     #searchButton {
