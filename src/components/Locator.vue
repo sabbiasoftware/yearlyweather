@@ -108,7 +108,7 @@ defineExpose({
         <Button v-if="!setLocationToUserInProgress" id="locateButton" label="Find me" icon="pi pi-map-marker" @click='setLocationToUser'></Button>
         <Button v-if="setLocationToUserInProgress" id="locateButton" label="Find me" icon="pi pi-spin pi-spinner" @click='setLocationToUser'></Button>
     </div>
-    <div id="coordinates">Selected coordinates: Lat: {{ selectedLocation.lat }}, Lon: {{ selectedLocation.lon }}</div>
+    <div id="coordinates">Lat: {{ selectedLocation.lat }}, Lon: {{ selectedLocation.lon }}</div>
     <Map ref="mapComponent" @set-location-to-user-complete="setLocationToUserComplete" @set-location-to-user-error="setLocationToUserError"></Map>
 </template>
 
@@ -135,5 +135,9 @@ defineExpose({
 
     #coordinates {
         margin-bottom: 0.5rem;
+    }
+
+    button {
+        min-height: 3.2rem;
     }
 </style>
