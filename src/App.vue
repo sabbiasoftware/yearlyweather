@@ -19,7 +19,7 @@ function generateStats() {
         locator.value.selectedLocation.lon,
         locator.value.selectedLocation.lat,
         dateSelector.value.selectedDateRanges,
-        true // useMockData
+        false // useMockData
     );
 }
 
