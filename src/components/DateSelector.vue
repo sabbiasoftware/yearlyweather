@@ -1,6 +1,7 @@
 <script setup>
 
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
+import Panel from 'primevue/panel'
 import DatePicker from 'primevue/datepicker';
 import InputNumber from 'primevue/inputnumber';
 import Select from 'primevue/select';
@@ -24,6 +25,10 @@ const weekdayFormatter = new Intl.DateTimeFormat("en-US", { weekday: "long" })
 const monthFormatter = new Intl.DateTimeFormat("en-US", { month: "long" })
 
 const selectedDateRanges = ref([])
+
+const selectedDateRangesSummary = computed(() => {
+    return 'Selected ' + yearNum.value + " " + (dayDelta.value > 0 ? 'date range' : 'date') + (yearNum.value > 1 ? "s" : "") + " (click to show/hide)";
+})
 
 defineExpose({
     selectedDateRanges, dayDelta
@@ -117,8 +122,7 @@ onMounted(() => {
 
     <br/>
 
-    <div>
-        <span>Selected {{ dayDelta > 0 ? "date ranges:" : "dates:" }}</span>
+    <panel :header="selectedDateRangesSummary" toggleable collapsed @update:collapsed="console.log(selectedDateRangesSummary)">
         <ul>
             <li v-if="dayDelta == 0" v-for="range in selectedDateRanges" :key="range.start.toISOString()">
                 {{ range.start.toLocaleDateString("en-US", { weekday: "short", year: "numeric", month: "short", day: "numeric" } ) }}
@@ -129,7 +133,7 @@ onMounted(() => {
                 {{ range.end.toLocaleDateString("en-US", { weekday: "short", year: "numeric", month: "short", day: "numeric" } ) }}
             </li>
         </ul>
-    </div>
+    </panel>
 
 </template>
 

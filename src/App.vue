@@ -31,10 +31,13 @@ function generateStats() {
 
         <Panel header="Yearly Weather" toggleable collapsed>
             <p>Ever wonder what the weather was like on your birthdays? Whether it rained on Thanksgiving in the past 10 years? Or how about historical weather on first Saturdays of October, on the day of your fav running race? Seek no more. This little app is (hopefully) for you.</p>
-            <br/>
+            <p>Feel free to send any feedback to <a href="mailto://sabbiasoftware.gmail.com">sabbiasoftware@gmail.com</a>.</p>
+            <p>Public web services used:<ul>
+                <li>Geocoding: <a href="https://photon.komoot.io">photon.komoot.io</a></li>
+                <li>Mapping: <a href="https://openstreetmap.org">openstreetmap.org</a></li>
+                <li>Weather: <a href="https://open-meteo.com">open-meteo.com</a></li>
+            </ul></p>
             <p><span class="strong">Note</span>: This page is NOT intended to forecast weather. It presents purely historical weather data.</p>
-            <br/>
-            <p><span class="strong">Public web services used:</span> Geocoding: <a href="https://photon.komoot.io">photon.komoot.io</a>, Mapping: <a href="https://openstreetmap.org">openstreetmap.org</a>, Weather: <a href="https://open-meteo.com">open-meteo.com</a></p>
         </Panel>
 
         <br/>
@@ -64,6 +67,10 @@ function generateStats() {
     button {
         margin-bottom: 1rem;
         height: 3.2rem;
+    }
+
+    p {
+        margin: 1rem;
     }
 
     .strong {

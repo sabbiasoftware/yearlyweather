@@ -126,11 +126,11 @@ defineExpose({
     }
 
     #searchButton {
-        flex-basis: 10rem;
+        flex-basis: 8rem;
     }
 
     #locateButton {
-        flex-basis: 10rem;
+        flex-basis: 8rem;
     }
 
     #coordinates {

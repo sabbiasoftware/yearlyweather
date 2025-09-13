@@ -330,7 +330,7 @@ defineExpose({
     </div>
 </template>
 
-<style>
+<style scoped>
     #chartControls {
         display: flex;
         flex-wrap: wrap;
@@ -361,8 +361,14 @@ defineExpose({
     }
 
     .weatherChart {
-        width: 570px;
-        height: 300px;
+        width: 48%;
+        min-width: 500px;
+        /*width: 570px;
+        height: 300px;*/
+    }
 
+    canvas {
+        width: 100%;
+        height: 100%;
     }
 </style>

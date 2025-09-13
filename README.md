@@ -1,16 +1,14 @@
-# yearlyweather
+# Yearly Weather
 
-A simple web app to check weather history around a specific day of the year. You can check weather stats at your home town on your birthday for fun, or see if weather was gracous on first Saturdays of October on your running race of choice.
+Ever wonder what the weather was like on your birthdays? Whether it rained on Thanksgiving in the past 10 years? Or how about historical weather on first Saturdays of October, on the day of your fav running race? Seek no more. This little app is (hopefully) for you.
 
-The app is NOT intended to be used as a weather forecast tool. It just presentes historical weather data.
+Feel free to send any feedback to sabbiasoftware@gmail.com.
 
-# Frameworks / tools / libs used:
-- Vuejs
-- PrimeVue
-- Leaflet.js
-- Axios
-- Chart.js
+# Public web services used:
 
-# Public APIs used:
-- Geocoding: photon.komoot.io/api
-- Weather: https://archive-api.open-meteo.com/v1/archive
+- Geocoding: photon.komoot.io
+- Mapping: openstreetmap.org
+- Weather: open-meteo.com
+
+**Note**: This page is NOT intended to forecast weather. It presents purely historical weather data.
+

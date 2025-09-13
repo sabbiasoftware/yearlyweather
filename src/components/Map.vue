@@ -38,7 +38,14 @@ onMounted(() => {
     map = L.map("mapComponent", {
         center: [0, 0],
         zoom: 4,
-        gestureHandling: true
+        gestureHandling: true,
+        gestureHandlingOptions: {
+            text: {
+                touch: "Use two fingers to pan",
+                scroll: "Use ctrl + scroll to zoom",
+                scrollMac: "Use \u2318 + scroll to zoom"
+            }
+        }
     });
 
     map.on('locationfound', locationFound)
