@@ -35,7 +35,11 @@ const locationError = (e) => {
 
 onMounted(() => {
     L.Map.addInitHook("addHandler", "GestureHandling", GestureHandling);
-    map = L.map("mapComponent").setView([0, 0], 4)
+    map = L.map("mapComponent", {
+        center: [0, 0],
+        zoom: 4,
+        gestureHandling: true
+    });
 
     map.on('locationfound', locationFound)
     map.on('locationerror', locationError)
