@@ -311,6 +311,7 @@ defineExpose({
 
 <template>
     <ProgressBar id="bar" v-if="generationProgress < 100" :value="generationProgress" :showValue="false"></ProgressBar>
+
     <div id="chartControls" v-if="hasData">
         <span id="aggYears">
             <Checkbox  size="large" inputId="aggYears" v-model="aggregateYears" binary @update:modelValue="refresh"/>
@@ -335,7 +336,7 @@ defineExpose({
 
         <div id="chartCode" class="chartCointainer">
             <div class="chartTitleContainer">
-                <img class="chartIcon" src="../assets/code.svg" />
+                <i class="wi wi-day-cloudy chartIcon"></i>
                 <h3>Daily weather</h3>
             </div>
             <Bar v-if="data_code" :data="data_code" :options="chart_options"></Bar>
@@ -343,7 +344,7 @@ defineExpose({
 
         <div id="chartTemp" class="chartCointainer">
             <div class="chartTitleContainer">
-                <img class="chartIcon" src="../assets/temp.svg" />
+                <i class="wi wi-thermometer chartIcon"></i>
                 <h3>Daily temperature (&deg;C)</h3>
             </div>
             <Line :data="data_temp" :options="chart_options"></Line>
@@ -351,7 +352,7 @@ defineExpose({
 
         <div id="chartWind" class="chartCointainer">
             <div class="chartTitleContainer">
-                <img class="chartIcon" src="../assets/wind.svg" />
+                <i class="wi wi-strong-wind chartIcon"></i>
                 <h3>Wind speed (km/h)</h3>
             </div>
             <Line :data="data_wind" :options="chart_options"></Line>
@@ -359,7 +360,7 @@ defineExpose({
         
         <div id="chartPrec" class="chartCointainer">
             <div class="chartTitleContainer">
-                <img class="chartIcon" src="../assets/prec.svg" />
+                <i class="wi wi-rain chartIcon"></i>
                 <h3>Precipitation hours</h3>
             </div>
             <Line :data="data_prec" :options="chart_options"></Line>
@@ -367,7 +368,7 @@ defineExpose({
         
         <div id="chartRain" class="chartCointainer">
             <div class="chartTitleContainer">
-                <img class="chartIcon" src="../assets/rain.svg" />
+                <i class="wi wi-raindrop chartIcon"></i>
                 <h3>Daily rain (mm)</h3>
             </div>
             <Line :data="data_rain" :options="chart_options"></Line>
@@ -375,7 +376,7 @@ defineExpose({
         
         <div id="chartSnow" class="chartCointainer">
             <div class="chartTitleContainer">
-                <img class="chartIcon" src="../assets/snow.svg" />
+                <i class="wi wi-snowflake-cold chartIcon"></i>
                 <h3>Daily snow (cm)</h3>
             </div>
             <Line :data="data_snow" :options="chart_options"></Line>
@@ -422,7 +423,7 @@ defineExpose({
         background-color: rgba(0,0,0, 0.015);
         border-style: solid;
         border-width: 1px;
-        border-color: rgba(0, 0, 0, 0.1);
+        border-color: var(--p-panel-border-color);
         border-radius: 0.5rem;
         padding: 1rem;
     }
@@ -435,7 +436,8 @@ defineExpose({
     }
 
     .chartIcon {
-        height: 1.5rem;
+        font-size: 1.5em;
+        color: var(--p-panel-color);
     }
 
     canvas {
