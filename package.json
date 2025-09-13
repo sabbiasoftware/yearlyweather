@@ -19,6 +19,7 @@
     "chart.js": "^4.5.0",
     "chartjs-plugin-autocolors": "^0.3.1",
     "leaflet": "^1.9.4",
+    "leaflet-gesture-handling": "^1.2.2",
     "primeicons": "^7.0.0",
     "primevue": "^4.3.8",
     "vue": "^3.5.18",

@@ -2,6 +2,9 @@
 
 import leaflet from 'leaflet'
 import { onMounted } from 'vue';
+import { GestureHandling } from "leaflet-gesture-handling";
+import "leaflet/dist/leaflet.css";
+import "leaflet-gesture-handling/dist/leaflet-gesture-handling.css";
 
 var map = null
 var marker = null
@@ -31,7 +34,8 @@ const locationError = (e) => {
 }
 
 onMounted(() => {
-    map = leaflet.map("mapComponent").setView([0, 0], 4)
+    L.Map.addInitHook("addHandler", "GestureHandling", GestureHandling);
+    map = L.map("mapComponent").setView([0, 0], 4)
 
     map.on('locationfound', locationFound)
     map.on('locationerror', locationError)

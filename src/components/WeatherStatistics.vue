@@ -299,7 +299,7 @@ defineExpose({
 
 
 <template>
-    <ProgressBar id="bar" v-if="generationProgress < 100" :value="generationProgress" :showValue="true"></ProgressBar>
+    <ProgressBar id="bar" v-if="generationProgress < 100" :value="generationProgress" :showValue="false"></ProgressBar>
     <div id="chartControls" v-if="hasData">
         <span id="aggYears">
             <Checkbox  size="large" inputId="aggYears" v-model="aggregateYears" binary @update:modelValue="refresh"/>
@@ -338,10 +338,6 @@ defineExpose({
         margin-bottom: 1rem;
         gap: 2rem;
         min-height: 4rem;
-    }
-
-    #aggYears {
-
     }
 
     #aggYearsLabel {
