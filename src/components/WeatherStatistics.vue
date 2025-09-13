@@ -45,7 +45,16 @@ const aggregateYears = ref(true);
 const yearNum = ref(0);
 const selectedYearIndex = ref(0);
 
-const chart_options = ref({ responsive: true })
+const chart_options = ref(
+    { 
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+)
 
 const data_code = ref(null)
 const data_temp = ref(null)
@@ -67,6 +76,8 @@ function download(_lon, _lat, _selectedDateRanges, useMockData) {
     lon = _lon;
     lat = _lat;
     selectedDateRanges = _selectedDateRanges;
+    rawData = [];
+    hasData.value = false;
     console.log('Generating statistics for ', lon, lat, selectedDateRanges);
 
     if (useMockData) {
@@ -224,12 +235,12 @@ function refreshTempStats() {
         labels: dayNumLabels,
         datasets: [
             {
-                label: 'Mean Temperature',
+                label: 'Mean',
                 backgroundColor: '#f87979',
                 data: temperatures_mean
             },
             {
-                label: 'Min Temperature',
+                label: 'Min',
                 backgroundColor: '#3b82f6',
                 data: temperatures_min,
                 fill: {
@@ -239,7 +250,7 @@ function refreshTempStats() {
                 }
             },
             {
-                label: 'Max Temperature',
+                label: 'Max',
                 backgroundColor: '#fbbf24',
                 data: temperatures_max
             }
@@ -263,11 +274,11 @@ function refreshFieldStats(fieldId, fieldDisplayName, dataRef) {
             labels: dayNumLabels,
             datasets: [
                 {
-                    label: 'Mean ' + fieldDisplayName,
+                    label: 'Mean', // + fieldDisplayName,
                     data: field_mean
                 },
                 {
-                    label: 'Max ' + fieldDisplayName,
+                    label: 'Max', // + fieldDisplayName,
                     data: field_max
                 }
             ]
@@ -305,10 +316,7 @@ defineExpose({
             <Checkbox  size="large" inputId="aggYears" v-model="aggregateYears" binary @update:modelValue="refresh"/>
         </span>
         <span id="aggYearsLabel">
-            <label for="aggYears">Aggregate years</label>
-        </span>
-        <span id="yearBar">
-            <Slider v-if="!aggregateYears" v-model="selectedYearIndex" :min="0" :max="yearNum-1" :step="1" @update:modelValue="refresh"></Slider>
+            <label for="aggYears">Aggregate</label>
         </span>
         <span id="yearInput">
             <FloatLabel variant="in">
@@ -319,14 +327,60 @@ defineExpose({
         <span>
             <span v-if="!aggregateYears">{{ dateToISO(selectedDateRanges[selectedYearIndex].start) + " &ndash; " + dateToISO(selectedDateRanges[selectedYearIndex].end) }}</span>
         </span>
+        <span id="yearBar">
+            <Slider v-if="!aggregateYears" v-model="selectedYearIndex" :min="0" :max="yearNum-1" :step="1" @update:modelValue="refresh"></Slider>
+        </span>
     </div>
-    <div id="chartGrid">
-        <div id="chartCode" class="weatherChart"><Bar v-if="data_code" :data="data_code" :options="chart_options"></Bar></div>
-        <div id="chartTemp" class="weatherChart"><Line v-if="data_temp" :data="data_temp" :options="chart_options"></Line></div>
-        <div id="chartWind" class="weatherChart"><Line v-if="data_wind" :data="data_wind" :options="chart_options"></Line></div>
-        <div id="chartPrec" class="weatherChart"><Line v-if="data_prec" :data="data_prec" :options="chart_options"></Line></div>
-        <div id="chartRain" class="weatherChart"><Line v-if="data_rain" :data="data_rain" :options="chart_options"></Line></div>
-        <div id="chartSnow" class="weatherChart"><Line v-if="data_snow" :data="data_snow" :options="chart_options"></Line></div>
+    <div id="chartGroupContainer" v-if="hasData">
+
+        <div id="chartCode" class="chartCointainer">
+            <div class="chartTitleContainer">
+                <img class="chartIcon" src="../assets/code.svg" />
+                <h3>Daily weather</h3>
+            </div>
+            <Bar v-if="data_code" :data="data_code" :options="chart_options"></Bar>
+        </div>
+
+        <div id="chartTemp" class="chartCointainer">
+            <div class="chartTitleContainer">
+                <img class="chartIcon" src="../assets/temp.svg" />
+                <h3>Daily temperature (&deg;C)</h3>
+            </div>
+            <Line :data="data_temp" :options="chart_options"></Line>
+        </div>
+
+        <div id="chartWind" class="chartCointainer">
+            <div class="chartTitleContainer">
+                <img class="chartIcon" src="../assets/wind.svg" />
+                <h3>Wind speed (km/h)</h3>
+            </div>
+            <Line :data="data_wind" :options="chart_options"></Line>
+        </div>
+        
+        <div id="chartPrec" class="chartCointainer">
+            <div class="chartTitleContainer">
+                <img class="chartIcon" src="../assets/prec.svg" />
+                <h3>Precipitation hours</h3>
+            </div>
+            <Line :data="data_prec" :options="chart_options"></Line>
+        </div>
+        
+        <div id="chartRain" class="chartCointainer">
+            <div class="chartTitleContainer">
+                <img class="chartIcon" src="../assets/rain.svg" />
+                <h3>Daily rain (mm)</h3>
+            </div>
+            <Line :data="data_rain" :options="chart_options"></Line>
+        </div>
+        
+        <div id="chartSnow" class="chartCointainer">
+            <div class="chartTitleContainer">
+                <img class="chartIcon" src="../assets/snow.svg" />
+                <h3>Daily snow (cm)</h3>
+            </div>
+            <Line :data="data_snow" :options="chart_options"></Line>
+        </div>
+
     </div>
 </template>
 
@@ -353,18 +407,35 @@ defineExpose({
         flex-basis: 10rem;
     }
 
-    #chartGrid {
+    #chartGroupContainer {
         display: flex;
         flex-wrap: wrap;
         justify-content: center;
-        gap: 1rem;
+        margin-top: 3rem;
+        gap: 3rem;
     }
 
-    .weatherChart {
-        width: 48%;
-        min-width: 500px;
-        /*width: 570px;
-        height: 300px;*/
+    .chartCointainer {
+        width: 100%;
+        max-width: 550px;
+        flex-grow: 1;
+        background-color: rgba(0,0,0, 0.015);
+        border-style: solid;
+        border-width: 1px;
+        border-color: rgba(0, 0, 0, 0.1);
+        border-radius: 0.5rem;
+        padding: 1rem;
+    }
+
+    .chartTitleContainer {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .chartIcon {
+        height: 1.5rem;
     }
 
     canvas {

@@ -27,7 +27,7 @@ const monthFormatter = new Intl.DateTimeFormat("en-US", { month: "long" })
 const selectedDateRanges = ref([])
 
 const selectedDateRangesSummary = computed(() => {
-    return 'Selected ' + yearNum.value + " " + (dayDelta.value > 0 ? 'date range' : 'date') + (yearNum.value > 1 ? "s" : "") + " (click to show/hide)";
+    return 'Selected ' + yearNum.value + " " + (dayDelta.value > 0 ? 'date range' : 'date') + (yearNum.value > 1 ? "s" : "");
 })
 
 defineExpose({
