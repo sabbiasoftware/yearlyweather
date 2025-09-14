@@ -6,7 +6,10 @@ import Button from 'primevue/button';
 import Locator from './components/Locator.vue'
 import DateSelector from './components/DateSelector.vue';
 import WeatherStatistics from './components/WeatherStatistics.vue';
-import { useTemplateRef } from 'vue';
+import { ref, computed, onMounted, useTemplateRef } from 'vue';
+
+const darkModeToken = 'my-app-dark';
+const darkMode = ref(false);
 
 const dateSelector = useTemplateRef('dateSelector');
 const locator = useTemplateRef('locator');
@@ -23,11 +26,27 @@ function generateStats() {
     );
 }
 
+function toggleDarkMode() {
+    darkMode.value = document.documentElement.classList.toggle(darkModeToken);
+}
+
+const darkModeIconClass = computed(() => {
+    return darkMode.value ? 'pi pi-moon' : 'pi pi-sun';
+});
+
+onMounted(() => {
+    darkMode.value = document.body.classList.contains(darkModeToken);
+});
+
 </script>
 
 <template>
-    <div>
+    <div id="panelContainer">
         <br/>
+
+        <div id="topBar">
+            <Button :icon="darkModeIconClass" severity="secondary" @click="toggleDarkMode" />
+        </div>
 
         <Panel header="Yearly Weather" toggleable collapsed>
             <p>Ever wonder what the weather was like on your birthdays? Whether it rained on Thanksgiving in the past 10 years? Or how about historical weather on first Saturdays of October, on the day of your favorite running race? Seek no more. This little app is (hopefully) for you.</p>
@@ -65,6 +84,12 @@ function generateStats() {
 </template>
 
 <style scoped>
+    #topBar {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+    }
+
     button {
         margin-bottom: 1rem;
         height: 3.2rem;
