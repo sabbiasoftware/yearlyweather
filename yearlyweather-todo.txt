@@ -1,0 +1,36 @@
+DONE:
+
+single year selection in chart controls
+leaflet gesture handling
+clarify if fetched data changed
+second fetch does not seem to work
+hideable selected date(range)s
+improve intro panel, include contact email
+charts on small display
+dark mode
+adaptive throttling of download
+error handling, retry, failure
+
+
+
+HIGH:
+
+by year vs by day
+area chart for rain and snow
+copy raw data to clipboard
+query parameters
+share link
+last modification / version
+by me a coffee
+revisit stats
+data flow between components
+daily weather chart %
+
+
+
+LOW:
+
+chart carousel on small display
+logo
+switch to primevue charts
+
