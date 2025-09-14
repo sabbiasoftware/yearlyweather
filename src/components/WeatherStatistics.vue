@@ -40,6 +40,7 @@ var rawData = []
 var dayNum = 0
 var dayNumLabels = []
 const generationProgress = ref(100);
+const downloadStatusMessage = ref(null);
 const hasData = ref(false);
 const aggregateYears = ref(true);
 const yearNum = ref(0);
@@ -72,6 +73,12 @@ const data_snow = ref(null)
 
 
 
+const minDownloadDelay = 100;
+const maxDownloadDelay = 6400;
+var downloadDelay = 10;
+const maxRetries = 2;
+var retryCount = 0;
+
 function download(_lon, _lat, _selectedDateRanges, useMockData) {
     lon = _lon;
     lat = _lat;
@@ -86,6 +93,11 @@ function download(_lon, _lat, _selectedDateRanges, useMockData) {
     }
     else {
         generationProgress.value = 0;
+
+        downloadDelay = minDownloadDelay;
+        retryCount = 0;
+        downloadStatusMessage.value = null;
+
         downloadNext();
     }
 }
@@ -116,16 +128,30 @@ function downloadNext() {
     }).then(response => {
         console.log('Weather data downloaded for ' + dateToISO(range.start) + " - " + dateToISO(range.end));
         rawData.push(response.data.daily);
+        retryCount = 0;
         generationProgress.value += (100 / selectedDateRanges.length);  
         if (rawData.length < selectedDateRanges.length) {
-            setTimeout(downloadNext, 1000); // To avoid hitting rate limits
+            setTimeout(downloadNext, downloadDelay);
         }
         else {
             generationProgress.value = 100
             prepare()
         }
     }).catch(error => {
-        console.error('****** Error downloading weather data for ' + d.toISOString().split('T')[0]);
+        downloadDelay *= 2;
+        if (downloadDelay > maxDownloadDelay) {
+            downloadDelay = maxDownloadDelay;
+        }
+        retryCount++;
+        console.error('Error downloading weather data for ' + dateToISO(range.start) + " - " + dateToISO(range.end) + "; error message: " + error.message);
+        if (retryCount <= maxRetries) {
+            downloadStatusMessage.value = 'Retrying: ' + error.message;
+            setTimeout(downloadNext, downloadDelay);
+        }
+        else {
+            downloadStatusMessage.value = 'Fetching weather stats failed: ' + error.message;
+            generationProgress.value = 100;
+        }
     });
 }
 
@@ -310,7 +336,8 @@ defineExpose({
 
 
 <template>
-    <ProgressBar id="bar" v-if="generationProgress < 100" :value="generationProgress" :showValue="false"></ProgressBar>
+    <ProgressBar id="bar" v-if="generationProgress < 100" :value="generationProgress" :showValue="false" :pt:value:style="{ 'transition-property': 'none' }"></ProgressBar>
+    <p v-if="downloadStatusMessage != null" class="p-error"> {{ downloadStatusMessage }} </p>
 
     <div id="chartControls" v-if="hasData">
         <span id="aggYears">
