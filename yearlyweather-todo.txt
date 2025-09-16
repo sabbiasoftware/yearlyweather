@@ -10,6 +10,7 @@ charts on small display
 dark mode
 adaptive throttling of download
 error handling, retry, failure
+copy raw data to clipboard
 
 
 
@@ -17,9 +18,7 @@ HIGH:
 
 by year vs by day
 area chart for rain and snow
-copy raw data to clipboard
-query parameters
-share link
+query parameters => share link
 last modification / version
 by me a coffee
 revisit stats

@@ -1,12 +1,14 @@
 <script setup>
 
+import { useClipboard } from '@vueuse/core';
+import Button from 'primevue/button';
 import ProgressBar from 'primevue/progressbar';
 import Slider from 'primevue/slider';
 import InputNumber from 'primevue/inputnumber';
 import { FloatLabel } from 'primevue';
 import Checkbox from 'primevue/checkbox';
 import axios from 'axios';
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { mean, min, max } from './statHelper.js';
 import { dateToISO } from './dateHelper.js';
 import getWMOCodeLabel from './WMOCodes.js';
@@ -331,6 +333,16 @@ defineExpose({
     download
 })
 
+const cbSource = ref("");
+
+var cbText, cbCopy, cbCopied, cbIsSupported;
+onMounted(() => {
+    const { text, copy, copied, isSupported } = useClipboard ({ cbSource, legacy: true });
+    cbText = text;
+    cbCopy = copy;
+    cbCopied = copied;
+    cbIsSupported = isSupported;
+})
 </script>
 
 
@@ -340,6 +352,7 @@ defineExpose({
     <p v-if="downloadStatusMessage != null" class="p-error"> {{ downloadStatusMessage }} </p>
 
     <div id="chartControls" v-if="hasData">
+        <Button label="Copy" icon="pi pi-copy" @click="cbCopy(JSON.stringify(rawData, null, 4))"></Button>
         <span id="aggYears">
             <Checkbox  size="large" inputId="aggYears" v-model="aggregateYears" binary @update:modelValue="refresh"/>
         </span>
@@ -413,6 +426,10 @@ defineExpose({
 </template>
 
 <style scoped>
+    Button {
+        height: 3.2rem;
+    }
+
     #chartControls {
         display: flex;
         flex-wrap: wrap;
