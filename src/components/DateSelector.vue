@@ -13,7 +13,7 @@ const ordinals = ['First', 'Second', 'Third', 'Fourth', 'Fifth'];
 
 const baseDate = ref(new Date());
 const dayDelta = ref(3)
-const yearNum = ref(10)
+const yearNum = ref(2)
 const modes = ref([
     { id: 0, name: 'Same month and day' },
     { id: 1, name: 'First Saturday of December' },

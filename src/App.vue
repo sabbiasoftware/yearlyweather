@@ -16,90 +16,93 @@ const locator = useTemplateRef('locator');
 const weatherStatistics = useTemplateRef('weatherStatistics');
 
 function generateStats() {
-    //console.log('Selected dates:', dateSelector.value.selectedDates);
-    //console.log('Selected location:', locator.value.selectedLocation.lon);
-    weatherStatistics.value.download(
-        locator.value.selectedLocation.lon,
-        locator.value.selectedLocation.lat,
-        dateSelector.value.selectedDateRanges,
-        false // useMockData
-    );
+  //console.log('Selected dates:', dateSelector.value.selectedDates);
+  //console.log('Selected location:', locator.value.selectedLocation.lon);
+  weatherStatistics.value.download(
+    locator.value.selectedLocation.lon,
+    locator.value.selectedLocation.lat,
+    dateSelector.value.selectedDateRanges,
+    false // useMockData
+  );
 }
 
 function toggleDarkMode() {
-    darkMode.value = document.documentElement.classList.toggle(darkModeToken);
+  darkMode.value = document.documentElement.classList.toggle(darkModeToken);
 }
 
 const darkModeIconClass = computed(() => {
-    return darkMode.value ? 'pi pi-moon' : 'pi pi-sun';
+  return darkMode.value ? 'pi pi-moon' : 'pi pi-sun';
 });
 
 onMounted(() => {
-    darkMode.value = document.body.classList.contains(darkModeToken);
+  darkMode.value = document.body.classList.contains(darkModeToken);
 });
 
 </script>
 
 <template>
-    <div id="panelContainer">
-        <br/>
+  <div id="panelContainer">
+    <br />
 
-        <div id="topBar">
-            <Button :icon="darkModeIconClass" severity="secondary" @click="toggleDarkMode" />
-        </div>
+    <div id="topBar">
+      <Button :icon="darkModeIconClass" severity="secondary" @click="toggleDarkMode" />
+    </div>
 
-        <Panel header="Yearly Weather" toggleable collapsed>
-            <p>Ever wonder what the weather was like on your birthdays? Whether it rained on Thanksgiving in the past 10 years? Or how about historical weather on first Saturdays of October, on the day of your favorite running race? Seek no more. This little app is (hopefully) for you.</p>
-            <p>Feel free to send any feedback to <a href="mailto://sabbiasoftware.gmail.com">sabbiasoftware@gmail.com</a>.</p>
-            <p>Public web services used:</p>
-            <ul>
-                <li>Geocoding: <a href="https://photon.komoot.io">photon.komoot.io</a></li>
-                <li>Mapping: <a href="https://openstreetmap.org">openstreetmap.org</a></li>
-                <li>Weather: <a href="https://open-meteo.com">open-meteo.com</a></li>
-            </ul>
-            <p><span class="strong">Note</span>: This page is NOT intended to forecast weather. It presents purely historical weather data.</p>
-        </Panel>
+    <Panel header="Yearly Weather" toggleable collapsed>
+      <p>Ever wonder what the weather was like on your birthdays? Whether it rained on Thanksgiving in the past 10
+        years? Or how about historical weather on first Saturdays of October, on the day of your favorite running race?
+        Seek no more. This little app is (hopefully) for you.</p>
+      <p>Feel free to send any feedback to <a href="mailto://sabbiasoftware.gmail.com">sabbiasoftware@gmail.com</a>.</p>
+      <p>Public web services used:</p>
+      <ul>
+        <li>Geocoding: <a href="https://photon.komoot.io">photon.komoot.io</a></li>
+        <li>Mapping: <a href="https://openstreetmap.org">openstreetmap.org</a></li>
+        <li>Weather: <a href="https://open-meteo.com">open-meteo.com</a></li>
+      </ul>
+      <p><span class="strong">Note</span>: This page is NOT intended to forecast weather. It presents purely historical
+        weather data.</p>
+    </Panel>
 
-        <br/>
+    <br />
 
-        <Panel header="Step 1: Select location">
-            <Locator ref="locator"></Locator>
-        </Panel>
+    <Panel header="Step 1: Select location">
+      <Locator ref="locator"></Locator>
+    </Panel>
 
-        <br/>
+    <br />
 
-        <Panel header="Step 2: Select dates / date ranges">
-            <DateSelector ref="dateSelector"></DateSelector>
-        </Panel>
+    <Panel header="Step 2: Select dates / date ranges">
+      <DateSelector ref="dateSelector"></DateSelector>
+    </Panel>
 
-        <br/>
+    <br />
 
-        <Panel header="Step 3: View weather stats">
-            <Button label="Fetch stats" icon="pi pi-chart-bar" @click="generateStats"></Button>
-            <WeatherStatistics ref="weatherStatistics"></WeatherStatistics>
-        </Panel>
+    <Panel header="Step 3: View weather stats">
+      <Button label="Fetch stats" icon="pi pi-chart-bar" @click="generateStats"></Button>
+      <WeatherStatistics ref="weatherStatistics"></WeatherStatistics>
+    </Panel>
 
-        <br/>
-</div>
+    <br />
+  </div>
 </template>
 
 <style scoped>
-    #topBar {
-        display: flex;
-        justify-content: flex-end;
-        align-items: center;
-    }
+#topBar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
 
-    button {
-        margin-bottom: 1rem;
-        height: 3.2rem;
-    }
+button {
+  margin-bottom: 1rem;
+  height: 3.2rem;
+}
 
-    p {
-        margin: 1rem;
-    }
+p {
+  margin: 1rem;
+}
 
-    .strong {
-        font-weight: bold;
-    }
+.strong {
+  font-weight: bold;
+}
 </style>
