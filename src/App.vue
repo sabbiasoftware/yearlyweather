@@ -81,10 +81,9 @@ onMounted(() => {
 
     <Panel header="Information">
       <div id="bottomBar">
-        
-        <a href="mailto://sabbiasoftware.gmail.com"><i class="pi pi-at"></i> sabbiasoftware@gmail.com</a>
+        <!--<a href="mailto://sabbiasoftware.gmail.com"><i class="pi pi-at"></i> sabbiasoftware@gmail.com</a>-->
+        <span>Last update: Sep 23, 2025</span>
         <span class="filler">&nbsp;</span>
-        <span>Last modification: Sep 23, 2025</span>
         <Button id="darkButton" :icon="darkModeIconClass" severity="primary" v-tooltip="'Switch between dark and light mode'" @click="toggleDarkMode" />
         <Button id="bmcButton" as="a" href="https://buymeacoffee.com/sabbiasoftware"><img src="./assets/bmc-logo.svg"/></Button>
         <!--<a href="https://buymeacoffee.com/sabbiasoftware"><img src="/public/bmc.png" class="bmc"/></a>-->
