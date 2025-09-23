@@ -9,7 +9,6 @@ import ProgressBar from 'primevue/progressbar';
 import Checkbox from 'primevue/checkbox';
 import axios from 'axios';
 import { ref, onMounted } from 'vue';
-import { mean, min, max } from './statHelper.js';
 import { dateToISO } from './dateHelper.js';
 import getWMOCodeLabel from './WMOCodes.js';
 import mockRawData from './MockStats.js'
@@ -416,7 +415,7 @@ onMounted(() => {
     :pt:value:style="{ 'transition-property': 'none' }"></ProgressBar>
   <p v-if="downloadStatusMessage != null" class="p-error"> {{ downloadStatusMessage }} </p>
 
-  <Panel>
+  <Panel v-if="hasData">
     <div id="chartControls" v-if="hasData">
       <Button label="Copy" icon="pi pi-copy" severity="secondary"
         @click="cbCopy(JSON.stringify(rawData, null, 4))"></Button>

@@ -1,12 +1,11 @@
 <script setup>
 
-
+import { ref, computed, onMounted, useTemplateRef } from 'vue';
 import Panel from 'primevue/panel';
 import Button from 'primevue/button';
 import Locator from './components/Locator.vue'
 import DateSelector from './components/DateSelector.vue';
 import WeatherStatistics from './components/WeatherStatistics.vue';
-import { ref, computed, onMounted, useTemplateRef } from 'vue';
 
 const darkModeToken = 'my-app-dark';
 const darkMode = ref(false);
@@ -44,10 +43,6 @@ onMounted(() => {
   <div id="panelContainer">
     <br />
 
-    <div id="topBar">
-      <Button :icon="darkModeIconClass" severity="secondary" @click="toggleDarkMode" />
-    </div>
-
     <Panel header="Yearly Weather" toggleable collapsed>
       <p>Ever wonder what the weather was like on your birthdays? Whether it rained on Thanksgiving in the past 10
         years? Or how about historical weather on first Saturdays of October, on the day of your favorite running race?
@@ -65,35 +60,52 @@ onMounted(() => {
 
     <br />
 
-    <Panel header="Step 1: Select location">
+    <Panel header="Step 1: Select location" toggleable>
       <Locator ref="locator"></Locator>
     </Panel>
 
     <br />
 
-    <Panel header="Step 2: Select dates / date ranges">
+    <Panel header="Step 2: Select dates / date ranges" toggleable>
       <DateSelector ref="dateSelector"></DateSelector>
     </Panel>
 
     <br />
 
     <Panel header="Step 3: View weather stats">
-      <Button label="Fetch stats" icon="pi pi-chart-bar" @click="generateStats"></Button>
+      <Button id="fetchButton" label="Fetch stats" icon="pi pi-chart-bar" @click="generateStats"></Button>
       <WeatherStatistics ref="weatherStatistics"></WeatherStatistics>
     </Panel>
 
     <br />
+
+    <Panel header="Information">
+      <div id="bottomBar">
+        
+        <a href="mailto://sabbiasoftware.gmail.com"><i class="pi pi-at"></i> sabbiasoftware@gmail.com</a>
+        <span class="filler">&nbsp;</span>
+        <span>Last modification: Sep 23, 2025</span>
+        <Button id="darkButton" :icon="darkModeIconClass" severity="primary" v-tooltip="'Switch between dark and light mode'" @click="toggleDarkMode" />
+        <Button id="bmcButton" as="a" href="https://buymeacoffee.com/sabbiasoftware"><img src="./assets/bmc-logo.svg"/></Button>
+        <!--<a href="https://buymeacoffee.com/sabbiasoftware"><img src="/public/bmc.png" class="bmc"/></a>-->
+      </div>
+
+    </Panel>
+
+    <br />
+
   </div>
 </template>
 
 <style scoped>
-#topBar {
+#bottomBar {
   display: flex;
   justify-content: flex-end;
-  align-items: center;
+  align-items:center;
+  gap: 1rem; 
 }
 
-button {
+#fetchButton {
   margin-bottom: 1rem;
   height: 3.2rem;
 }
@@ -105,4 +117,23 @@ p {
 .strong {
   font-weight: bold;
 }
+
+.filler {
+  flex-grow:1;
+}
+
+#bmcButton {
+  height: 2.5rem;
+  width: 2.5rem;
+  img {
+    height: 1.6rem;
+    width: 1.6rem;
+  }
+}
+
+.bmc {
+  height: 2.5rem;
+  margin-bottom: -0.4rem;
+}
+
 </style>

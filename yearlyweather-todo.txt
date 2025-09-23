@@ -11,12 +11,12 @@ dark mode
 adaptive throttling of download
 error handling, retry, failure
 copy raw data to clipboard
+by year vs by day
 
 
 
 HIGH:
 
-by year vs by day
 area chart for rain and snow
 query parameters => share link
 last modification / version
