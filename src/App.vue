@@ -48,7 +48,7 @@ onMounted(() => {
         years? Or how about historical weather on first Saturdays of October, on the day of your favorite running race?
         Seek no more. This little app is (hopefully) for you.</p>
       <p>Feel free to send any feedback to <a href="mailto://sabbiasoftware.gmail.com">sabbiasoftware@gmail.com</a>.</p>
-      <p>Public web services used:</p>
+      <p>Credits:</p>
       <ul>
         <li>Geocoding: <a href="https://photon.komoot.io">photon.komoot.io</a></li>
         <li>Mapping: <a href="https://openstreetmap.org">openstreetmap.org</a></li>
