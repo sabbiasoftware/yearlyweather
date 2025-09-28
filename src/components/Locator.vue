@@ -18,7 +18,12 @@ const selectedLocation = ref({
   lat: 0.0
 })
 const panelHeader = computed(() => {
-  return `1. Location (Lat: ${ selectedLocation.value.lat.toFixed(3) }, Lon: ${ selectedLocation.value.lon.toFixed(3) })`
+  if (selectedLocation.value && selectedLocation.value.lat && selectedLocation.value.lon) {
+    return `1. Location (Lat: ${ selectedLocation.value.lat.toFixed(3) }, Lon: ${ selectedLocation.value.lon.toFixed(3) })`
+  }
+  else {
+    return "1. Location (?)"
+  }
 })
 const selectedLocationSuggestions = ref([])
 const panelCollapsed = ref(false)
@@ -29,7 +34,7 @@ const setLocationToUserInProgress = ref(false)
 const mapComponent = ref(null)
 
 const setLocation = () => {
-    console.log('Setting location to ' + selectedLocation.value.lon + ", " + selectedLocation.value.lat)
+  console.log(`Setting location to ${ selectedLocation.value.lon } (${ typeof(selectedLocation.value.lon) }), ${ selectedLocation.value.lat } (${ typeof(selectedLocation.value.lat) })`)
     statParams.lon = selectedLocation.value.lon
     statParams.lat = selectedLocation.value.lat
     mapComponent.value.setLocation(selectedLocation.value.lon, selectedLocation.value.lat)

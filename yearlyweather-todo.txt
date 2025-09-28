@@ -12,17 +12,17 @@ adaptive throttling of download
 error handling, retry, failure
 copy raw data to clipboard
 by year vs by day
+query parameters => share link
+last modification / version
+by me a coffee
+data flow between components
 
 
 
 HIGH:
 
 area chart for rain and snow
-query parameters => share link
-last modification / version
-by me a coffee
 revisit stats
-data flow between components
 daily weather chart %
 
 
