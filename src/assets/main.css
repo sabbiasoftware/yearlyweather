@@ -1,6 +1,6 @@
 @import './base.css';
 
-#app {
+#yearlyweatherapp {
   max-width: 1280px;
   margin: 0 auto;
   padding: 0.5rem;
@@ -27,7 +27,7 @@ a,
     place-items: center;
   }
 
-  #app {
+  #yearlyweatherapp {
     display: grid;
     grid-template-columns: 1200px;
     padding: 0 2rem;

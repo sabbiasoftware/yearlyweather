@@ -1,5 +1,5 @@
 <script setup>
-
+import { statParams } from './statParams.js'
 import { useClipboard } from '@vueuse/core';
 import Panel from 'primevue/panel'
 import Select from 'primevue/select'
@@ -8,11 +8,11 @@ import SelectButton from 'primevue/selectbutton'
 import ProgressBar from 'primevue/progressbar';
 import Checkbox from 'primevue/checkbox';
 import axios from 'axios';
-import { ref, onMounted } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 import { dateToISO } from './dateHelper.js';
 import getWMOCodeLabel from './WMOCodes.js';
 import mockRawData from './MockStats.js'
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler, BarElement } from 'chart.js'
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Legend, Filler, BarElement } from 'chart.js'
 import { Line, Bar } from 'vue-chartjs'
 import autocolors from 'chartjs-plugin-autocolors';
 
@@ -23,24 +23,19 @@ ChartJS.register(
   LineElement,
   BarElement,
   Title,
-  Tooltip,
   Legend,
   Filler,
   autocolors
 )
 
 
+const baseURL = document.baseURI // window.location.origin
 
 // constants
 const chartModes = [
   { index: 0, label: "By day" },
   { index: 1, label: "By year" }
 ]
-
-// input parameters
-var lon = 0
-var lat = 0
-var selectedDateRanges = []
 
 // internal state
 var rawData = []
@@ -50,6 +45,7 @@ const yearNum = ref(0);
 const generationProgress = ref(100);
 const downloadStatusMessage = ref(null);
 const hasData = ref(false);
+const freshData = ref(false);
 const chartMode = ref(chartModes[0]);
 const aggregate = ref(true);
 
@@ -80,6 +76,11 @@ const data_snow = ref(null)
 
 
 
+watch(statParams, () => {
+  freshData.value = false
+})
+
+
 // download => prepare => refresh
 //      1) download: download weather data for all selected date ranges, possibly using mock data
 //      2) prepare: after download prepare internal state
@@ -93,15 +94,12 @@ var downloadDelay = 10;
 const maxRetries = 2;
 var retryCount = 0;
 
-function download(_lon, _lat, _selectedDateRanges, useMockData) {
-  lon = _lon;
-  lat = _lat;
-  selectedDateRanges = _selectedDateRanges;
+function download() {
   rawData = [];
   hasData.value = false;
-  console.log('Generating statistics for ', lon, lat, selectedDateRanges);
+  console.log('Generating statistics for ', statParams.lon, statParams.lat, statParams.selectedDateRanges);
 
-  if (useMockData) {
+  if (statParams.useMockData) {
     rawData = mockRawData;
     prepare();
   }
@@ -119,12 +117,12 @@ function download(_lon, _lat, _selectedDateRanges, useMockData) {
 function downloadNext() {
   console.log('Downloading weather data for date index', rawData.length);
 
-  const range = selectedDateRanges[rawData.length];
+  const range = statParams.selectedDateRanges[rawData.length];
 
   axios.get('https://archive-api.open-meteo.com/v1/archive', {
     params: {
-      latitude: lat,
-      longitude: lon,
+      latitude: statParams.lat,
+      longitude: statParams.lon,
       start_date: dateToISO(range.start),
       end_date: dateToISO(range.end),
       daily: [
@@ -143,8 +141,8 @@ function downloadNext() {
       console.log('Weather data downloaded for ' + dateToISO(range.start) + " - " + dateToISO(range.end));
       rawData.push(response.data.daily);
       retryCount = 0;
-      generationProgress.value += (100 / selectedDateRanges.length);
-      if (rawData.length < selectedDateRanges.length) {
+      generationProgress.value += (100 / statParams.selectedDateRanges.length);
+      if (rawData.length < statParams.selectedDateRanges.length) {
         setTimeout(downloadNext, downloadDelay);
       }
       else {
@@ -197,6 +195,7 @@ function prepare() {
   selectedYear.value = yearOptions.value[yearOptions.value.length - 1]
 
   hasData.value = true
+  freshData.value = true
 
   refresh();
 }
@@ -391,10 +390,6 @@ function refreshFieldStats(fieldId, fieldDisplayName, dataRef) {
   }
 }
 
-defineExpose({
-  download
-})
-
 const cbSource = ref("");
 
 var cbText, cbCopy, cbCopied, cbIsSupported;
@@ -411,101 +406,106 @@ onMounted(() => {
 
 
 <template>
-  <ProgressBar id="bar" v-if="generationProgress < 100" :value="generationProgress" :showValue="false"
-    :pt:value:style="{ 'transition-property': 'none' }"></ProgressBar>
-  <p v-if="downloadStatusMessage != null" class="p-error"> {{ downloadStatusMessage }} </p>
+  <Panel header="3. Weather stats">
+    <Button id="fetchButton" v-if="!freshData && (generationProgress == 100)" label="Fetch stats" icon="pi pi-chart-bar" @click="download"></Button>
+    <ProgressBar id="bar" v-if="generationProgress < 100" :value="generationProgress" :showValue="false"
+      :pt:value:style="{ 'transition-property': 'none' }"></ProgressBar>
+    <p v-if="downloadStatusMessage != null" class="p-error"> {{ downloadStatusMessage }} </p>
 
-  <Panel v-if="hasData">
-    <div id="chartControls" v-if="hasData">
-      <Button label="Copy" icon="pi pi-copy" severity="secondary"
-        @click="cbCopy(JSON.stringify(rawData, null, 4))"></Button>
-      <SelectButton v-model="chartMode" :options="chartModes" optionLabel="label" @update:model-value="refresh"></SelectButton>
-      <span id="aggYears">
-        <Checkbox size="large" inputId="aggYears" v-model="aggregate" binary @update:modelValue="refresh" />
-      </span>
-      <span id="aggYearsLabel">
-        <label for="aggYears">Aggregate</label>
-      </span>
+    <div v-if="hasData">
+      <div id="chartControls" v-if="hasData">
+        <SelectButton v-model="chartMode" :options="chartModes" optionLabel="label" @update:model-value="refresh"></SelectButton>
+        <span id="aggYears">
+          <Checkbox size="large" inputId="aggYears" v-model="aggregate" binary @update:modelValue="refresh" />
+        </span>
+        <span id="aggYearsLabel">
+          <label for="aggYears">Aggregate</label>
+        </span>
 
-      <div class="timeSelector" v-if="!aggregate && chartMode.index == 0">
-        <Select id="yearSelector" v-model="selectedYear" :options="yearOptions"
-          optionLabel="label" @update:modelValue="refresh"></Select>
-        <Button class="prevYear" icon="pi pi-minus" rounded variant="outlined" severity="secondary"
-          v-if="yearOptions != null"
-          :disabled="(yearOptions == null) || (selectedYear == null) || (selectedYear.index == 0)"
-          @click="selectedYear = yearOptions[selectedYear.index - 1]; refresh();"></Button>
-        <Button class="nextYear" icon="pi pi-plus" rounded variant="outlined" severity="secondary"
-          v-if="(yearOptions != null)"
-          :disabled="(yearOptions == null) || (selectedYear == null) || (selectedYear.index == yearOptions.length - 1)"
-          @click="selectedYear = yearOptions[selectedYear.index + 1]; refresh();"></Button>
+        <div class="timeSelector" v-if="!aggregate && chartMode.index == 0">
+          <Select id="yearSelector" v-model="selectedYear" :options="yearOptions"
+            optionLabel="label" @update:modelValue="refresh"></Select>
+          <Button class="prevYear" icon="pi pi-minus" rounded variant="outlined" severity="secondary"
+            v-if="yearOptions != null"
+            :disabled="(yearOptions == null) || (selectedYear == null) || (selectedYear.index == 0)"
+            @click="selectedYear = yearOptions[selectedYear.index - 1]; refresh();"></Button>
+          <Button class="nextYear" icon="pi pi-plus" rounded variant="outlined" severity="secondary"
+            v-if="(yearOptions != null)"
+            :disabled="(yearOptions == null) || (selectedYear == null) || (selectedYear.index == yearOptions.length - 1)"
+            @click="selectedYear = yearOptions[selectedYear.index + 1]; refresh();"></Button>
+        </div>
+
+        <div class="timeSelector" v-if="!aggregate && chartMode.index == 1">
+          <Select id="daySelect" v-model="selectedDay" :options="dayOptions"
+            optionLabel="label" @update:modelValue="refresh"></Select>
+          <Button class="prevDay" icon="pi pi-minus" rounded variant="outlined" severity="secondary"
+            v-if="dayOptions != null"
+            :disabled="(dayOptions == null) || (selectedDay == null) || (selectedDay.index == 0)"
+            @click="selectedDay = dayOptions[selectedDay.index - 1]; refresh();"></Button>
+          <Button class="nextDay" icon="pi pi-plus" rounded variant="outlined" severity="secondary"
+            v-if="(dayOptions != null)"
+            :disabled="(dayOptions == null) || (selectedDay == null) || (selectedDay.index == dayOptions.length - 1)"
+            @click="selectedDay = dayOptions[selectedDay.index + 1]; refresh();"></Button>
+        </div>
+        <span id="filler"></span>
+        <Button label="Copy" icon="pi pi-copy" severity="secondary"
+          @click="cbCopy(JSON.stringify(rawData, null, 4))"></Button>
+        <Button label="Share" icon="pi pi-share-alt" severity="secondary"
+          @click="cbCopy(`${baseURL}?lat=${statParams.lat}&lon=${statParams.lon}&bd=${dateToISO(statParams.baseDate)}&dd=${statParams.dayDelta}&yn=${statParams.yearNum}&m=${statParams.yearMode}`)"></Button>
+      </div>
+    </div>
+    <div id="chartGroupContainer" v-if="hasData">
+
+      <div id="chartCode" class="chartCointainer">
+        <div class="chartTitleContainer">
+          <i class="wi wi-day-cloudy chartIcon"></i>
+          <h3>Daily weather</h3>
+        </div>
+        <Bar v-if="data_code" :data="data_code" :options="chart_options"></Bar>
       </div>
 
-      <div class="timeSelector" v-if="!aggregate && chartMode.index == 1">
-        <Select id="daySelect" v-model="selectedDay" :options="dayOptions"
-          optionLabel="label" @update:modelValue="refresh"></Select>
-        <Button class="prevDay" icon="pi pi-minus" rounded variant="outlined" severity="secondary"
-          v-if="dayOptions != null"
-          :disabled="(dayOptions == null) || (selectedDay == null) || (selectedDay.index == 0)"
-          @click="selectedDay = dayOptions[selectedDay.index - 1]; refresh();"></Button>
-        <Button class="nextDay" icon="pi pi-plus" rounded variant="outlined" severity="secondary"
-          v-if="(dayOptions != null)"
-          :disabled="(dayOptions == null) || (selectedDay == null) || (selectedDay.index == dayOptions.length - 1)"
-          @click="selectedDay = dayOptions[selectedDay.index + 1]; refresh();"></Button>
+      <div id="chartTemp" class="chartCointainer">
+        <div class="chartTitleContainer">
+          <i class="wi wi-thermometer chartIcon"></i>
+          <h3>Daily temperature (&deg;C)</h3>
+        </div>
+        <Line :data="data_temp" :options="chart_options"></Line>
+      </div>
+
+      <div id="chartWind" class="chartCointainer">
+        <div class="chartTitleContainer">
+          <i class="wi wi-strong-wind chartIcon"></i>
+          <h3>Wind speed (km/h)</h3>
+        </div>
+        <Line :data="data_wind" :options="chart_options"></Line>
+      </div>
+
+      <div id="chartPrec" class="chartCointainer">
+        <div class="chartTitleContainer">
+          <i class="wi wi-rain chartIcon"></i>
+          <h3>Precipitation hours</h3>
+        </div>
+        <Line :data="data_prec" :options="chart_options"></Line>
+      </div>
+
+      <div id="chartRain" class="chartCointainer">
+        <div class="chartTitleContainer">
+          <i class="wi wi-raindrop chartIcon"></i>
+          <h3>Daily rain (mm)</h3>
+        </div>
+        <Line :data="data_rain" :options="chart_options"></Line>
+      </div>
+
+      <div id="chartSnow" class="chartCointainer">
+        <div class="chartTitleContainer">
+          <i class="wi wi-snowflake-cold chartIcon"></i>
+          <h3>Daily snow (cm)</h3>
+        </div>
+        <Line :data="data_snow" :options="chart_options"></Line>
       </div>
 
     </div>
   </Panel>
-  <div id="chartGroupContainer" v-if="hasData">
-
-    <div id="chartCode" class="chartCointainer">
-      <div class="chartTitleContainer">
-        <i class="wi wi-day-cloudy chartIcon"></i>
-        <h3>Daily weather</h3>
-      </div>
-      <Bar v-if="data_code" :data="data_code" :options="chart_options"></Bar>
-    </div>
-
-    <div id="chartTemp" class="chartCointainer">
-      <div class="chartTitleContainer">
-        <i class="wi wi-thermometer chartIcon"></i>
-        <h3>Daily temperature (&deg;C)</h3>
-      </div>
-      <Line :data="data_temp" :options="chart_options"></Line>
-    </div>
-
-    <div id="chartWind" class="chartCointainer">
-      <div class="chartTitleContainer">
-        <i class="wi wi-strong-wind chartIcon"></i>
-        <h3>Wind speed (km/h)</h3>
-      </div>
-      <Line :data="data_wind" :options="chart_options"></Line>
-    </div>
-
-    <div id="chartPrec" class="chartCointainer">
-      <div class="chartTitleContainer">
-        <i class="wi wi-rain chartIcon"></i>
-        <h3>Precipitation hours</h3>
-      </div>
-      <Line :data="data_prec" :options="chart_options"></Line>
-    </div>
-
-    <div id="chartRain" class="chartCointainer">
-      <div class="chartTitleContainer">
-        <i class="wi wi-raindrop chartIcon"></i>
-        <h3>Daily rain (mm)</h3>
-      </div>
-      <Line :data="data_rain" :options="chart_options"></Line>
-    </div>
-
-    <div id="chartSnow" class="chartCointainer">
-      <div class="chartTitleContainer">
-        <i class="wi wi-snowflake-cold chartIcon"></i>
-        <h3>Daily snow (cm)</h3>
-      </div>
-      <Line :data="data_snow" :options="chart_options"></Line>
-    </div>
-
-  </div>
 </template>
 
 <style scoped>
@@ -521,7 +521,6 @@ Button {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  margin-bottom: 1rem;
   gap: 2rem;
   min-height: 4rem;
 }
@@ -535,16 +534,15 @@ Button {
   margin-left: -1rem;
 }
 
-#yearBar {
+#filler {
   flex-grow: 1;
-  min-width: 12rem;
 }
 
 #chartGroupContainer {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  margin-top: 3rem;
+  margin-top: 1rem;
   gap: 3rem;
 }
 
