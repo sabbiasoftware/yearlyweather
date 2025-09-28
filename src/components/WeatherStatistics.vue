@@ -56,6 +56,7 @@ const yearLabels = ref([])
 const selectedYear = ref();
 const selectedDay = ref();
 
+
 const chart_options = ref(
   {
     responsive: true,
@@ -63,7 +64,8 @@ const chart_options = ref(
       legend: {
         position: 'bottom'
       }
-    }
+    },
+    aspectRatio: 1.25
   }
 )
 

@@ -25,7 +25,7 @@ watch (yearMode, () => { if (yearMode.value.id != statParams.yearMode) { statPar
 watch (statParams, () => { if (statParams.yearMode != yearMode.value.id) { yearMode.value = yearModes[statParams.yearMode]; updateYearModes(); }})
 
 const panelHeader = computed(() => {
-  return `2. Time (${ statParams.yearNum } years back from ${ dateToISO(statParams.baseDate) })`
+  return `2. Time (${ statParams.yearNum } years from ${ dateToISO(statParams.baseDate) })`
 })
 const panelCollapsed = ref(false)
 
