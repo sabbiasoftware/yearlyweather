@@ -18,12 +18,7 @@ const selectedLocation = ref({
   lat: 0.0
 })
 const panelHeader = computed(() => {
-  if (selectedLocation.value && selectedLocation.value.lat && selectedLocation.value.lon) {
-    return `1. Location (Lat: ${ selectedLocation.value.lat.toFixed(3) }, Lon: ${ selectedLocation.value.lon.toFixed(3) })`
-  }
-  else {
-    return "1. Location (?)"
-  }
+  return `1. Location (Lat: ${ statParams.lat.toFixed(3) }, Lon: ${ statParams.lon.toFixed(3) })`
 })
 const selectedLocationSuggestions = ref([])
 const panelCollapsed = ref(false)
