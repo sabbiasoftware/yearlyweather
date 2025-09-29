@@ -56,6 +56,45 @@ const yearLabels = ref([])
 const selectedYear = ref();
 const selectedDay = ref();
 
+// ------------------------------------------------
+// TODO: create dedicated component based on Button
+const copyButtonLabelBase = "Copy data"
+const copyButtonLabelTemp = "Data copied"
+const copyButtonIconBase = "pi pi-copy"
+const copyButtonIconTemp = "pi pi-check"
+const copyButtonLabel = ref(copyButtonLabelBase)
+const copyButtonIcon = ref(copyButtonIconBase)
+
+function copyButtonClick() {
+  copyButtonLabel.value = copyButtonLabelTemp
+  copyButtonIcon.value = copyButtonIconTemp
+  cbCopy(JSON.stringify(rawData, null, 4))
+  setTimeout(() => {
+    copyButtonLabel.value = copyButtonLabelBase
+    copyButtonIcon.value = copyButtonIconBase
+  }, 3000)
+}
+// ------------------------------------------------
+
+// ------------------------------------------------
+// TODO: create dedicated component based on Button
+const shareButtonLabelBase = "Share link"
+const shareButtonLabelTemp = "Link copied"
+const shareButtonIconBase = "pi pi-share-alt"
+const shareButtonIconTemp = "pi pi-check"
+const shareButtonLabel = ref(shareButtonLabelBase)
+const shareButtonIcon = ref(shareButtonIconBase)
+
+function shareButtonClick() {
+  shareButtonLabel.value = shareButtonLabelTemp
+  shareButtonIcon.value = shareButtonIconTemp
+  cbCopy(`${baseURL}?lat=${statParams.lat}&lon=${statParams.lon}&bd=${dateToISO(statParams.baseDate)}&dd=${statParams.dayDelta}&yn=${statParams.yearNum}&m=${statParams.yearMode}`)
+  setTimeout(() => {
+    shareButtonLabel.value = shareButtonLabelBase
+    shareButtonIcon.value = shareButtonIconBase
+  }, 3000)
+}
+// ------------------------------------------------
 
 const chart_options = ref(
   {
@@ -450,10 +489,10 @@ onMounted(() => {
             @click="selectedDay = dayOptions[selectedDay.index + 1]; refresh();"></Button>
         </div>
         <span id="filler"></span>
-        <Button label="Copy" icon="pi pi-copy" severity="secondary"
-          @click="cbCopy(JSON.stringify(rawData, null, 4))"></Button>
-        <Button label="Share" icon="pi pi-share-alt" severity="secondary"
-          @click="cbCopy(`${baseURL}?lat=${statParams.lat}&lon=${statParams.lon}&bd=${dateToISO(statParams.baseDate)}&dd=${statParams.dayDelta}&yn=${statParams.yearNum}&m=${statParams.yearMode}`)"></Button>
+        <Button :label="copyButtonLabel" :icon="copyButtonIcon" severity="secondary"
+          @click="copyButtonClick"></Button>
+        <Button :label="shareButtonLabel" :icon="shareButtonIcon" severity="secondary"
+          @click="shareButtonClick"></Button>
       </div>
     </div>
     <div id="chartGroupContainer" v-if="hasData">
@@ -512,6 +551,7 @@ onMounted(() => {
 
 <style scoped>
 Button {
+  width: 9rem;
   height: 3.2rem;
 }
 
