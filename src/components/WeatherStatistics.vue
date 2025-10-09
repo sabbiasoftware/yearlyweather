@@ -37,17 +37,18 @@ const chartModes = [
   { index: 1, label: "By year" }
 ]
 
+const chartMode = ref(chartModes[0]);
+const aggregate = ref(true);
+
 // internal state
 var rawData = []
-var dayNum = ref(0);
+const dayNum = ref(0);
 const yearNum = ref(0);
 
 const generationProgress = ref(100);
 const downloadStatusMessage = ref(null);
 const hasData = ref(false);
 const freshData = ref(false);
-const chartMode = ref(chartModes[0]);
-const aggregate = ref(true);
 
 const yearOptions = ref([]) // [ { index: 0, label: '2008'}, { index: 1, label: '2009' } ]
 const dayOptions = ref([]) // [ { index: 0, label: 'Day -3' }, { index: 1, label: 'Day -2' } ]
