@@ -448,7 +448,7 @@ onMounted(() => {
 
 <template>
   <Panel header="3. Weather stats">
-    <Button id="fetchButton" v-if="!freshData && (generationProgress == 100)" label="Fetch stats" icon="pi pi-chart-bar" @click="download"></Button>
+    <Button id="fetchButton" class="textButton" v-if="!freshData && (generationProgress == 100)" label="Fetch stats" icon="pi pi-chart-bar" @click="download"></Button>
     <ProgressBar id="bar" v-if="generationProgress < 100" :value="generationProgress" :showValue="false"
       :pt:value:style="{ 'transition-property': 'none' }"></ProgressBar>
     <p v-if="downloadStatusMessage != null" class="p-error"> {{ downloadStatusMessage }} </p>
@@ -489,9 +489,9 @@ onMounted(() => {
             @click="selectedDay = dayOptions[selectedDay.index + 1]; refresh();"></Button>
         </div>
         <span id="filler"></span>
-        <Button :label="copyButtonLabel" :icon="copyButtonIcon" severity="secondary"
+        <Button class="textButton" :label="copyButtonLabel" :icon="copyButtonIcon" severity="secondary"
           @click="copyButtonClick"></Button>
-        <Button :label="shareButtonLabel" :icon="shareButtonIcon" severity="secondary"
+        <Button class="textButton" :label="shareButtonLabel" :icon="shareButtonIcon" severity="secondary"
           @click="shareButtonClick"></Button>
       </div>
     </div>
@@ -550,7 +550,7 @@ onMounted(() => {
 </template>
 
 <style scoped>
-Button {
+.textButton {
   width: 9rem;
   height: 3.2rem;
 }
