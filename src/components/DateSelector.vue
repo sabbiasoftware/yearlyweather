@@ -123,6 +123,7 @@ onMounted(() => {
 
   if (urlQueryNum == 4) {
     panelCollapsed.value = true
+    statParams.dateSelectorParamsFound = true
   }
   updateAll();
 });

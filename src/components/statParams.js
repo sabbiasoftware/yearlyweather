@@ -8,6 +8,9 @@ export const statParams = reactive({
   yearNum: 10,
   yearMode: 0,
   selectedDateRanges: [],
-  useMockData: false
+  useMockData: false,
+
+  locatorParamsFound: false,
+  dateSelectorParamsFound: false
 })
 

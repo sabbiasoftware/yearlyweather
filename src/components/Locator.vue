@@ -88,6 +88,7 @@ onMounted(() => {
           selectedLocation.value.lat = urlLat;
           panelCollapsed.value = true;
           setLocation();
+          statParams.locatorParamsFound = true;
         }
       }
     }

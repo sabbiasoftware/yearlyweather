@@ -15,6 +15,7 @@ import mockRawData from './MockStats.js'
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Legend, Filler, BarElement } from 'chart.js'
 import { Line, Bar } from 'vue-chartjs'
 import autocolors from 'chartjs-plugin-autocolors';
+import { useRoute } from 'vue-router'
 
 ChartJS.register(
   CategoryScale,
@@ -28,8 +29,10 @@ ChartJS.register(
   autocolors
 )
 
+const route = useRoute()
 
-const baseURL = document.baseURI // window.location.origin
+//const baseURL = document.baseURI // window.location.origin
+const baseURL = location.href.replace(location.search, '')
 
 // constants
 const chartModes = [
@@ -89,7 +92,25 @@ const shareButtonIcon = ref(shareButtonIconBase)
 function shareButtonClick() {
   shareButtonLabel.value = shareButtonLabelTemp
   shareButtonIcon.value = shareButtonIconTemp
-  cbCopy(`${baseURL}?lat=${statParams.lat}&lon=${statParams.lon}&bd=${dateToISO(statParams.baseDate)}&dd=${statParams.dayDelta}&yn=${statParams.yearNum}&m=${statParams.yearMode}`)
+
+  var url = `${baseURL}?`
+  var pars = []
+  pars.push({ name: 'lat', value: `${statParams.lat}` })
+  pars.push({ name: 'lon', value: `${statParams.lon}` })
+  pars.push({ name: 'bd',  value: `${dateToISO(statParams.baseDate)}` })
+  pars.push({ name: 'dd', value: `${statParams.dayDelta}` })
+  pars.push({ name: 'yn', value: `${statParams.yearNum}` })
+  pars.push({ name: 'm', value: `${statParams.yearMode}` })
+  pars.push({ name: 'cm', value: `${chartMode.value.index}` })
+  pars.push({ name: 'a', value: `${aggregate.value ? 1 : 0}` })
+  pars.push({ name: 'sy', value: `${selectedYear.value.index}` })
+  pars.push({ name: 'sd', value: `${selectedDay.value.index}` })
+  for (let par of pars) {
+    url += `&${par.name}=${par.value}`
+  }
+  cbCopy(url)
+
+  //cbCopy(`${baseURL}?lat=${statParams.lat}&lon=${statParams.lon}&bd=${dateToISO(statParams.baseDate)}&dd=${statParams.dayDelta}&yn=${statParams.yearNum}&m=${statParams.yearMode}&cm=${chartMode.value.index}&a=${aggregate.value ? 1 : 0}&sy=${}`)
   setTimeout(() => {
     shareButtonLabel.value = shareButtonLabelBase
     shareButtonIcon.value = shareButtonIconBase
@@ -211,6 +232,8 @@ function downloadNext() {
 
 
 
+var firstPrepare = true
+
 function prepare() {
   console.log("Prepare() called")
   yearNum.value = rawData.length;
@@ -225,7 +248,15 @@ function prepare() {
     dayOptions.value.push({ index: dayIndex, label: s });
     dayLabels.value.push(s);
   }
-  selectedDay.value = dayOptions.value[day0index]
+
+  var selectedDayIndex = day0index
+  if (firstPrepare && route.query.sd) {
+    const sd = Number.parseInt(route.query.sd)
+    if ((sd != NaN) && (0 <= sd) && (sd < dayOptions.value.length)) {
+      selectedDayIndex = sd
+    }
+  }
+  selectedDay.value = dayOptions.value[selectedDayIndex]
 
   yearOptions.value = []
   yearLabels.value = []
@@ -234,12 +265,36 @@ function prepare() {
     yearOptions.value.push({ index: yearIndex, label: s });
     yearLabels.value.push(s);
   }
-  selectedYear.value = yearOptions.value[yearOptions.value.length - 1]
+
+  var selectedYearIndex = yearOptions.value.length - 1
+  if (firstPrepare && route.query.sy) {
+    const sy = Number.parseInt(route.query.sy)
+    if ((sy != NaN) && (0 <= sy) && (sy < yearOptions.value.length)) {
+      selectedYearIndex = sy
+    }
+  }
+  selectedYear.value = yearOptions.value[selectedYearIndex]
+
+  if (firstPrepare && route.query.cm) {
+    const cm = Number.parseInt(route.query.cm)
+    if ((cm != NaN) && (0 <= cm) && (cm < chartModes.length)) {
+      chartMode.value = chartModes[cm]
+    }
+  }
+
+  if (firstPrepare && route.query.a) {
+    const a = Number.parseInt(route.query.a)
+    if ((a != NaN) && (0 <= a) && (a < 2)) {
+      aggregate.value = a == 1 ? true : false
+    }
+  }
 
   hasData.value = true
   freshData.value = true
 
   refresh();
+
+  firstPrepare = false
 }
 
 
@@ -432,16 +487,32 @@ function refreshFieldStats(fieldId, fieldDisplayName, dataRef) {
   }
 }
 
-const cbSource = ref("");
-
 var cbText, cbCopy, cbCopied, cbIsSupported;
-onMounted(() => {
+const cbSource = ref("");
+function initClipboard() {
   const { text, copy, copied, isSupported } = useClipboard({ cbSource, legacy: true });
   cbText = text;
   cbCopy = copy;
   cbCopied = copied;
   cbIsSupported = isSupported;
+}
+
+var isMounted = false
+var autoDownloadTriggered = false
+
+function checkAutoDownload() {
+  if (isMounted && statParams.locatorParamsFound && statParams.dateSelectorParamsFound && !autoDownloadTriggered) {
+    download()
+  }
+}
+
+onMounted(() => {
+  isMounted = true
+  initClipboard()
+  checkAutoDownload()
 })
+
+watch(statParams, () => { checkAutoDownload() })
 
 </script>
 

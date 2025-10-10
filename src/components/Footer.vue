@@ -24,7 +24,7 @@ onMounted(() => {
     <Panel header="Information">
       <div id="bottomBar">
         <!--<a href="mailto://sabbiasoftware.gmail.com"><i class="pi pi-at"></i> sabbiasoftware@gmail.com</a>-->
-        <span>Last update: Oct 9, 2025</span>
+        <span>Last update: Oct 10, 2025</span>
         <span class="filler">&nbsp;</span>
         <Button id="darkButton" :icon="darkModeIconClass" severity="primary" @click="toggleDarkMode" />
         <Button id="bmcButton" as="a" href="https://buymeacoffee.com/sabbiasoftware"><img src="../assets/bmc-logo.svg"/></Button>
