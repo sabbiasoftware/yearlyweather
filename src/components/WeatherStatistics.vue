@@ -502,6 +502,7 @@ var autoDownloadTriggered = false
 
 function checkAutoDownload() {
   if (isMounted && statParams.locatorParamsFound && statParams.dateSelectorParamsFound && !autoDownloadTriggered) {
+    autoDownloadTriggered = true
     download()
   }
 }
