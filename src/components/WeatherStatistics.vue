@@ -527,7 +527,7 @@ watch(statParams, () => { checkAutoDownload() })
 
     <div v-if="hasData">
       <div id="chartControls" v-if="hasData">
-        <SelectButton v-model="chartMode" :options="chartModes" optionLabel="label" @update:model-value="refresh"></SelectButton>
+        <SelectButton v-model="chartMode" :allowEmpty="false" :options="chartModes" optionLabel="label" @update:model-value="refresh"></SelectButton>
         <span id="aggYears">
           <Checkbox size="large" inputId="aggYears" v-model="aggregate" binary @update:modelValue="refresh" />
         </span>
